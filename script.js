@@ -1,5 +1,5 @@
-console.log("Javascript is working!");
+console.log("Javascript is working!")
 
-function addToCart() {
-    alert("Item added to cart!");
+function addToCart(productName) {
+    alert(productName + " has been added to your cart!");
 }
