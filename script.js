@@ -55,3 +55,6 @@ function removeFromCart(index) {
 
     displayCart();
 }
+function goToCheckout() {
+    window.location.href = "checkout.html";
+}
