@@ -1,7 +1,12 @@
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-function addToCart(productName) {
-    cart.push(productName);
+function addToCart(productName, productPrice) {
+    let product = {
+        name: productName,
+        price: productPrice
+    };
+    
+    cart.push(product);
 
     localStorage.setItem("cart", JSON.stringify(cart));
 
@@ -22,7 +27,7 @@ function displayCart() {
     for (let i = 0; i < cart.length; i++) {
         let item = document.createElement("li");
         
-        item.textContent = cart[i] + " ";
+        item.textContent = cart[i].name + " - $" + cart[i].price.toFixed(2);
         
         let removeButton = document.createElement("button");
         removeButton.textContent = "Remove";
