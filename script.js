@@ -1,5 +1,9 @@
-console.log("Javascript is working!")
+let cart =[];
 
 function addToCart(productName) {
-    alert(productName + " has been added to your cart!");
+    cart.push(productName);
+
+    alert(productName + " added to your cart!");
+
+    console.log(cart);
 }
