@@ -95,3 +95,49 @@ function showCardDetails() {
 function hideCardDetails() {
     document.getElementById("cardDetails").style.display = "none";
 }
+
+function placeOrder() {
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let address = document.getElementById("address").value;
+    let cardNumber = document.getElementById("cardNumber").value;
+    let expiryDate = document.getElementById("expiryDate").value;
+    let cvv = document.getElementById("cvv").value;
+
+    if (cart.length === 0) {
+        alert("Your cart is empty. Start filling it now!.");
+        return;
+    }
+
+    else if (name === "" || email === "" || address === "") {
+        alert("Please fill in all required fields.");
+        return;
+    }
+
+    else if (document.getElementById("delivery").checked == false &&
+        document.getElementById("clickCollect").checked == false) {
+        alert("Please select a delivery method.");
+        return;
+    }
+
+    else if (document.getElementById("delivery").checked && address === "") {
+        alert("Please provide a delivery address.");
+        return;
+    }
+
+    else if (document.getElementById("card").checked == false &&
+        document.getElementById("paypal").checked == false &&
+        document.getElementById("afterpay").checked == false) {
+        alert("Please select a payment method.");
+        return;
+    }
+
+    else if (document.getElementById("card").checked && (cardNumber == "" || expiryDate == "" || cvv =="")) {
+        alert("Please fill in all card details.");
+        return;
+    }
+
+    else {
+        window.location.href = "confirmation.html";
+    }
+}
