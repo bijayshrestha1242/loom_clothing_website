@@ -1,4 +1,5 @@
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let discount = 0;
 
 function addToCart(productName, productPrice) {
     let product = {
@@ -46,7 +47,10 @@ function displayCart() {
         total = total + price;
     }
 
-    cartTotal.textContent = "Total: $" + total.toFixed(2);
+    let discountAmount = total * discount;
+    let finalTotal = total - discountAmount;
+
+    cartTotal.textContent = "Total: $" + finalTotal.toFixed(2);
 }
 function removeFromCart(index) {
     cart.splice(index, 1);
@@ -67,4 +71,19 @@ function showDelivery() {
 function showPickup() {
     document.getElementById("addressSection").style.display = "none";
     document.getElementById("pickupLocation").style.display = "block";
+}
+
+function applyDiscount() {
+    let discountCode = document.getElementById("discountCode").value;
+    let discountMessage = document.getElementById("discountMessage");
+
+    if (discountCode === "ILOVELOOM") {
+        discount = 0.10; // 10% discount
+        discountMessage.textContent = "Discount code applied! Enjoy 10% off.";
+    } else {
+        discount = 0;
+        discountMessage.textContent = "Invalid Code. Please try again.";
+    }
+
+    displayCart();
 }
