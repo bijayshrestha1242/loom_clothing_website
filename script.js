@@ -58,3 +58,13 @@ function removeFromCart(index) {
 function goToCheckout() {
     window.location.href = "checkout.html";
 }
+
+function showDelivery() {
+    document.getElementById("addressSection").style.display = "block";
+    document.getElementById("pickupLocation").style.display = "none";
+}
+
+function showPickup() {
+    document.getElementById("addressSection").style.display = "none";
+    document.getElementById("pickupLocation").style.display = "block";
+}

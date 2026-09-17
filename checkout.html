@@ -50,8 +50,15 @@
 
                 <br><br>
 
-                <label for="address">Contact Number:</label>
+                <label for="number">Contact Number:</label>
                 <input type="text" id="number" required>
+
+                <br><br>
+
+                <div id="addressSection">
+                    <label for="address">Address:</label>
+                    <input type="text" id="address" required>
+                </div>
 
                 <br><br>
             </form>
@@ -60,13 +67,21 @@
         <section>
             <h2>Delivery Method</h2>
 
-            <input type="radio" id="delivery" name="deliveryMethod" value="delivery">
+            <input type="radio" id="delivery" name="deliveryMethod" value="delivery" onclick="showDelivery()">
             <label for="delivery">Delivery</label>
 
             <br><br>
 
-            <input type="radio" id="clickCollect" name="deliveryMethod" value="clickCollect">
+            <input type="radio" id="clickCollect" name="deliveryMethod" value="clickCollect" onclick="showPickup()">
             <label for="clickCollect">Click & Collect</label>
+
+            <div id="pickupLocation" style="display: none;">
+                <h3>Pickup Location</h3>
+                
+                <select id="pickupSelect">
+                    <option value="store1">Fremantle Store</option>
+                </select>
+            </div>
         </section>
     </main>
 
