@@ -87,3 +87,11 @@ function applyDiscount() {
 
     displayCart();
 }
+
+function showCardDetails() {
+    document.getElementById("cardDetails").style.display = "block";
+}
+
+function hideCardDetails() {
+    document.getElementById("cardDetails").style.display = "none";
+}
