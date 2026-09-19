@@ -109,7 +109,7 @@ function placeOrder() {
         return;
     }
 
-    else if (name === "" || email === "" || address === "") {
+    else if (name === "" || email === "") {
         alert("Please fill in all required fields.");
         return;
     }
@@ -138,6 +138,35 @@ function placeOrder() {
     }
 
     else {
+        localStorage.setItem("lastOrder", JSON.stringify(cart));
+        localStorage.removeItem("cart");
+
         window.location.href = "confirmation.html";
     }
 }
+
+function displayOrder(){
+    let orderItems = document.getElementById("orderItems");
+    let orderTotal = document.getElementById("orderTotal");
+
+    if (orderItems == null || orderTotal == null) {
+        return;
+    }
+
+    let lastOrder = JSON.parse(localStorage.getItem("lastOrder")) || [];
+
+    let total = 0;
+
+    for (let i = 0; i < lastOrder.length; i++) {
+        let item = document.createElement("li");
+        let price = Number(lastOrder[i].price);
+
+        item.textContent = lastOrder[i].name + " - $" + price.toFixed(2);
+        orderItems.appendChild(item);
+        total = total + price;
+    }
+
+    orderTotal.textContent = "Total: $" + total.toFixed(2);
+}
+
+displayOrder();
