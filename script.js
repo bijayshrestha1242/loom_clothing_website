@@ -1,5 +1,6 @@
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let discount = 0;
+let finalTotal = 0;
 
 function addToCart(productName, productPrice) {
     let product = {
@@ -20,7 +21,7 @@ function displayCart() {
     let cartItems = document.getElementById("cartItems");
     let cartTotal = document.getElementById("cartTotal");
 
-    if (cartItems === null || cartTotal === null) {
+    if (cartItems == null || cartTotal == null) {
         return;
     }
 
@@ -30,10 +31,9 @@ function displayCart() {
 
     for (let i = 0; i < cart.length; i++) {
         let item = document.createElement("li");
-        
         let price = Number(cart[i].price);
 
-        item.textContent = cart[i].name + " - $" + cart[i].price.toFixed(2) + " ";
+        item.textContent = cart[i].name + " - $" + price.toFixed(2) + " ";
         
         let removeButton = document.createElement("button");
         removeButton.textContent = "Remove";
@@ -48,7 +48,7 @@ function displayCart() {
     }
 
     let discountAmount = total * discount;
-    let finalTotal = total - discountAmount;
+    finalTotal = total - discountAmount;
 
     cartTotal.textContent = "Total: $" + finalTotal.toFixed(2);
 }
@@ -139,6 +139,7 @@ function placeOrder() {
 
     else {
         localStorage.setItem("lastOrder", JSON.stringify(cart));
+        localStorage.setItem("finalTotal", finalTotal);
         localStorage.removeItem("cart");
 
         window.location.href = "confirmation.html";
@@ -154,8 +155,7 @@ function displayOrder(){
     }
 
     let lastOrder = JSON.parse(localStorage.getItem("lastOrder")) || [];
-
-    let total = 0;
+    let lastTotal = Number(localStorage.getItem("finalTotal"));
 
     for (let i = 0; i < lastOrder.length; i++) {
         let item = document.createElement("li");
@@ -163,10 +163,10 @@ function displayOrder(){
 
         item.textContent = lastOrder[i].name + " - $" + price.toFixed(2);
         orderItems.appendChild(item);
-        total = total + price;
     }
 
-    orderTotal.textContent = "Total: $" + total.toFixed(2);
+    orderTotal.textContent = "Total: $" + lastTotal.toFixed(2);
 }
 
+displayCart();
 displayOrder();
