@@ -35,7 +35,7 @@
 
             <button onclick="showAddProduct()">Add Product</button>
             <button>Edit Product</button>
-            <button>Remove Product</button>
+            <button onclick="showRemoveProduct()">Remove Product</button>
 
             <section id="addProductSection" style="display: none;">
                 <h3>Add New Product</h3>
@@ -62,6 +62,17 @@
                     <button type="submit">Add Product</button>
                 </form>
             </section>
+
+            <section id="removeProductSection" style="display: none;">
+                <h3>Remove Product</h3>
+
+                <form id="removeProductForm">
+                    <label for="removeProductName">Product Name:</label>
+                    <input type="text" id="removeProductName" name="removeProductName" required>
+                    <button type="submit">Remove Product</button>
+                </form>
+            </section>
+
         </section>
 
         <section>
