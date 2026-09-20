@@ -181,6 +181,12 @@ function showRemoveProduct() {
     document.getElementById("removeProductSection").style.display = "block";
 }
 
+function showOrders() {
+    document.getElementById("ordersSection").style.display = "block";
+
+    displayAdminOrders();
+}
+
 let addProductForm = document.getElementById("addProductForm");
 
 if (addProductForm != null) {
@@ -252,6 +258,31 @@ if (removeProductForm != null) {
         }
         alert("Product not found.");
     });
+}
+
+function displayAdminOrders() {
+    let adminOrderItems = document.getElementById("adminOrderItems");
+    let adminOrderTotal = document.getElementById("adminOrderTotal");
+    let lastOrder = JSON.parse(localStorage.getItem("lastOrder")) || [];
+    let lastTotal = Number(localStorage.getItem("finalTotal"));
+
+    adminOrderItems.innerHTML = "";
+
+    if (lastOrder.length === 0) {
+        adminOrderItems.innerHTML = "<li>No orders found.</li>";
+        adminOrderTotal.textContent = "";
+        return;
+    }
+
+    for (let i = 0; i < lastOrder.length; i++){
+        let item = document.createElement("li");
+        let price = Number(lastOrder[i].price);
+
+        item.textContent = lastOrder[i].name + " - $" + price.toFixed(2);
+
+        adminOrderItems.appendChild(item);
+    }
+    adminOrderTotal.textContent = "Order Total: $" + lastTotal.toFixed(2);
 }
 
 displayCart();
