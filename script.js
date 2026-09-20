@@ -173,6 +173,10 @@ function showAddProduct() {
     document.getElementById("addProductSection").style.display = "block";
 }
 
+function showEditProduct() {
+    document.getElementById("editProductSection").style.display = "block";
+}
+
 function showRemoveProduct() {
     document.getElementById("removeProductSection").style.display = "block";
 }
@@ -201,6 +205,31 @@ if (addProductForm != null) {
         localStorage.setItem("products", JSON.stringify(products));
         alert("Product added successfully!");
         addProductForm.reset();
+    });
+}
+
+let editProductForm = document.getElementById("editProductForm");
+
+if (editProductForm != null) {
+    editProductForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let productName = document.getElementById("editProductName").value;
+        let newProductDescription = document.getElementById("editProductDescription").value;
+        let newProductPrice = document.getElementById("editProductPrice").value;
+
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].name === productName) {
+                products[i].description = newProductDescription;
+                products[i].price = Number(newProductPrice);
+                localStorage.setItem("products", JSON.stringify(products));
+                alert("Product updated successfully!");
+                editProductForm.reset();
+                return;
+            }
+        }
+        alert("Product not found.");
+
     });
 }
 

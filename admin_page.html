@@ -34,7 +34,7 @@
             <p>Here you can add, edit, or remove products from the store.</p>
 
             <button onclick="showAddProduct()">Add Product</button>
-            <button>Edit Product</button>
+            <button onclick="showEditProduct()">Edit Product</button>
             <button onclick="showRemoveProduct()">Remove Product</button>
 
             <section id="addProductSection" style="display: none;">
@@ -60,6 +60,23 @@
                     <input type="url" id="productImage" name="productImage" required>
 
                     <button type="submit">Add Product</button>
+                </form>
+            </section>
+
+            <section id="editProductSection" style="display: none;">
+                <h3>Edit Product</h3>
+
+                <form id="editProductForm">
+                    <label for="editProductName">Product Name:</label>
+                    <input type="text" id="editProductName" name="editProductName" required>
+
+                    <label for="editProductDescription">Description:</label>
+                    <textarea id="editProductDescription" name="editProductDescription" required></textarea>
+
+                    <label for="editProductPrice">Price:</label>
+                    <input type="number" id="editProductPrice" name="editProductPrice" step="0.01" required>
+
+                    <button type="submit">Edit Product</button>
                 </form>
             </section>
 
