@@ -168,5 +168,9 @@ function displayOrder(){
     orderTotal.textContent = "Total: $" + lastTotal.toFixed(2);
 }
 
+function showAddProduct() {
+    document.getElementById("addProductSection").style.display = "block";
+}
+
 displayCart();
 displayOrder();
