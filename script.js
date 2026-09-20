@@ -1,4 +1,5 @@
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let products = JSON.parse(localStorage.getItem("products")) || [];
 let discount = 0;
 let finalTotal = 0;
 
@@ -170,6 +171,33 @@ function displayOrder(){
 
 function showAddProduct() {
     document.getElementById("addProductSection").style.display = "block";
+}
+
+let addProductForm = document.getElementById("addProductForm");
+
+if (addProductForm != null) {
+    addProductForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let productName = document.getElementById("productName").value;
+        let productDescription = document.getElementById("productDescription").value;
+        let productPrice = document.getElementById("productPrice").value;
+        let productCategory = document.getElementById("productCategory").value;
+        let productImage = document.getElementById("productImage").value;
+
+        let product = {
+            name: productName,
+            description: productDescription,
+            price: productPrice,
+            category: productCategory,
+            image: productImage
+        };
+
+        products.push(product);
+        localStorage.setItem("products", JSON.stringify(products));
+        alert("Product added successfully!");
+        addProductForm.reset();
+    });
 }
 
 displayCart();
