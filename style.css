@@ -289,12 +289,10 @@ footer {
     color: white;
     text-align: center;
     padding: 15px;
-    margin-top: 40px;
+    margin-top: auto;
 }
 
-/* 
-   MOBILE RESPONSIVE
- */
+/*  MOBILE RESPONSIVE*/
 @media (max-width: 600px) {
 
     nav {
