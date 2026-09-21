@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title> Men's Clothing</title>
-
     <link rel="stylesheet" href="styles.css">
-
 </head>
 
 <body>
@@ -22,17 +18,15 @@
             <ul>
                 <li><a href="homepage.html">Home</a></li>
                 <li><a href="mens_clothing.html">Men's Clothing</a></li>
-                <li><a href="womens_clothing.html">Women's
+                <li><a href="womens_clothing.html">Women's Clothing</a></li>
             </ul>
         </nav>
-        
     </header>
 
     <main>
 
         <section>
             <h2>Men's Clothing</h2>
-
             <P>Browse our collection of men's clothing and find the perfect outfit for any occasion.</P>
         </section>
 
@@ -43,7 +37,7 @@
                 <h3>Classic Shirt</h3>
                 <p>A timeless addition to any wardrobe.</p>
                 <P>$49.99</P>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('Classic Shirt', 49.99)">Add to Cart</button>
             </div>
 
             <div class="products">
@@ -51,7 +45,7 @@
                 <h3>Baggy Jeans</h3>
                 <p>A staple baggy pair of jeans to go with everything.</p>
                 <P>$79.99</P>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('Baggy Jeans', 79.99)">Add to Cart</button>
             </div>
 
             <div class="products">
@@ -59,9 +53,17 @@
                 <h3>Cozy Jumper</h3>
                 <p>A warm and comfortable jumper perfect for any weather.</p>
                 <P>$99.99</P>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('Cozy Jumper', 99.99)">Add to Cart</button>
             </div>
         </section>
+
+        <section>
+            <h2>Your Cart</h2>
+            <ul id="cartItems"></ul>
+            <p id="cartTotal">Total: $0.00</p>
+            <button onclick="goToCheckout()">Checkout</button>
+        </section>
+
     </main>
 
     <script src="script.js"></script>
