@@ -3,31 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Checkout - Loom Clothing</title>
+    <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
     <header>
-        <nav>
-            <h1>
-                <a href="homepage.html">Loom Clothing</a>
-            </h1>
+       <nav>
+            <div class="logo">
+                                <a href="homepage.html">Loom Clothing</a>
+            </div>
 
-            <ul>
+            <ul class="nav-links">
                 <li><a href="homepage.html">Home</a></li>
-                <li><a href="mens_clothing.html">Men's Clothing</a></li>
-                <li><a href="womens_clothing.html">Women's Clothing</a></li>
+                <li><a href="mens_clothing.html">Mens</a></li>
+                <li><a href="womens_clothing.html">Womens</a></li>
+                <li><a href="admin_page.html">Admin</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <section>
+        <div class="checkout-container">
+            <section >
             <h2>Checkout</h2>
             <p>Review your order and proceed to payment.</p>
         </section>
+          
 
         <section>
             <h2>Your Order</h2>
@@ -43,17 +47,15 @@
                 <label for="name">Full Name:</label>
                 <input type="text" id="name" required>
 
-                <br><br>
-
+               
                 <label for="email">Email:</label>
                 <input type="email" id="email" required>
 
-                <br><br>
+              
 
                 <label for="number">Contact Number:</label>
                 <input type="text" id="number" required>
 
-                <br><br>
 
                 <div id="addressSection">
                     <label for="address">Address:</label>
@@ -62,13 +64,13 @@
             </form>
         </section>
 
-        <section>
+        <section class="delivery-methods">
             <h2>Delivery Method</h2>
 
             <input type="radio" id="delivery" name="deliveryMethod" value="delivery" onclick="showDelivery()">
             <label for="delivery">Delivery</label>
 
-            <br><br>
+           
 
             <input type="radio" id="clickCollect" name="deliveryMethod" value="clickCollect" onclick="showPickup()">
             <label for="clickCollect">Click & Collect</label>
@@ -86,25 +88,24 @@
             <h2>Discount Code</h2>
                 <label for="discountCode">Enter Discount Code:</label>
                 <input type="text" id="discountCode">
-                <button onclick="applyDiscount()">Apply</button>
+                <button class="btn" onclick="applyDiscount()">Apply</button>
                 <p id="discountMessage"></p>
-            </h2>
+            
         </section>
 
-        <section>
+        <section class ="payment-methods">
             <h2>Payment Method</h2>
 
             <input type="radio" id="card" name="paymentMethod" value="card"
             onclick="showCardDetails()">
             <label for="card">Credit/Debit Card</label>
 
-            <br><br>
+           
 
             <input type="radio" id="paypal" name="paymentMethod" value="paypal"
             onclick="hideCardDetails()">
             <label for="paypal">PayPal</label>
 
-            <br><br>
 
             <input type="radio" id="afterpay" name="paymentMethod" value="afterpay"
             onclick="hideCardDetails()">
@@ -116,25 +117,28 @@
                 <label for="cardNumber">Card Number:</label>
                 <input type="text" id="cardNumber">
 
-                <br><br>
+                
 
                 <label for="expiryDate">Expiry Date:</label>
                 <input type="text" id="expiryDate" placeholder="MM/YY">
 
-                <br><br>
+               
 
                 <label for="cvv">CVV:</label>
                 <input type="text" id="cvv">
             </div>
         </section>
 
-        <section>
-            <br><br>
-            <button onclick="placeOrder()">Place Order</button>
+        <div>
+         
+            <button class="btn" onclick="placeOrder()">Place Order</button>
             <p id="orderMessage"></p>
-        </section>
-
+        </div>
+</div>
     </main>
+     <footer>
+    <p>© 2024 Loom Clothing</p>
+</footer>
 
     <script src="script.js"></script>
 
