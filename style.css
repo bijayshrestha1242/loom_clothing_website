@@ -1,4 +1,6 @@
-/* Basic reset */
+/* 
+   BASE STYLES
+*/
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +8,15 @@
     font-family: Arial, sans-serif;
 }
 
-/* Header */
+body {
+    background: #f7f7f7;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 
+   HEADER & NAVIGATION
+ */
 header {
     background: #222;
     padding: 15px;
@@ -25,7 +35,6 @@ nav {
     text-decoration: none;
 }
 
-/* Navigation links */
 .nav-links {
     list-style: none;
     display: flex;
@@ -42,7 +51,9 @@ nav {
     text-decoration: underline;
 }
 
-/* Hero section */
+/* 
+   HERO SECTION (Homepage)
+ */
 .hero {
     text-align: center;
     padding: 60px 20px;
@@ -50,16 +61,15 @@ nav {
 }
 
 .hero h1 {
-    font-size: 28px;
+    font-size: 32px;
     margin-bottom: 15px;
 }
 
 .hero p {
-    font-size: 16px;
+    font-size: 18px;
     margin-bottom: 25px;
 }
 
-/* Buttons */
 .hero-buttons {
     display: flex;
     justify-content: center;
@@ -73,15 +83,218 @@ nav {
     text-decoration: none;
     border-radius: 4px;
     font-size: 14px;
+    transition: 0.3s;
 }
 
 .btn:hover {
     background: #444;
 }
 
-/* ------------------------------
-   MOBILE RESPONSIVE SECTION
------------------------------- */
+/*
+   PRODUCT GRID (Mens & Womens Clothing)
+*/
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    padding: 30px;
+}
+
+.product-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.product-card h3 {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.product-card p {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.product-card button {
+    background: #222;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.product-card button:hover {
+    background: #444;
+}
+
+/*
+   CART PAGE
+ */
+.cart-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+#cartItems li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+#cartItems button {
+    background: #c0392b;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+#cartItems button:hover {
+    background: #e74c3c;
+}
+
+#cartTotal {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+/* 
+   CHECKOUT PAGE
+ */
+.checkout-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.checkout-container input,
+.checkout-container select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.checkout-container label {
+    font-weight: bold;
+}
+
+.payment-methods,
+.delivery-methods {
+    margin: 20px 0;
+}
+
+#cardDetails {
+    margin-top: 15px;
+}
+
+/*
+   CONFIRMATION PAGE
+*/
+.confirmation-box {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.confirmation-box h2 {
+    margin-bottom: 20px;
+}
+
+#orderItems li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+#orderTotal {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 
+   ADMIN PAGE
+ */
+.admin-section {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.admin-section h2 {
+    margin-bottom: 15px;
+}
+
+.admin-section form input,
+.admin-section form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.admin-section button {
+    background: #222;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.admin-section button:hover {
+    background: #444;
+}
+
+#adminOrderItems li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+#adminOrderTotal {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 
+   FOOTER
+ */
+footer {
+    background: #222;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 40px;
+}
+
+/* 
+   MOBILE RESPONSIVE
+ */
 @media (max-width: 600px) {
 
     nav {
@@ -117,5 +330,18 @@ nav {
         max-width: 250px;
         margin: 0 auto;
         text-align: center;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #cartItems li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .checkout-container {
+        padding: 10px;
     }
 }
