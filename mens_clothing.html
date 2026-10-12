@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Men's Clothing</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -30,9 +30,25 @@
             <P>Browse our collection of men's clothing and find the perfect outfit for any occasion.</P>
         </section>
 
-        <section class="products">
+        <section>
+            <h3>Filter Products</h3>
 
-            <div class="products">
+            <label for="filterType">Filter By:</label>
+            <select id="filterType" onchange="showFilterOptions()">
+                <option value="none">Select Filter</option>
+                <option value="price">Price</option>
+                <option value="size">Size</option>
+                <option value="colour">Colour</option>
+                <option value="availability">Availability</option>
+            </select>
+
+            <select id="filterOption" onchange="filterProducts()" style="display: none;">
+            </select>
+        </section>
+
+        <section class="products" id="productList">
+
+            <div class="product" data-price="49.99" data-order="1" data-size="M" data-colour="white" data-stock="in">
                 <img src="" alt="Men's Shirt">
                 <h3>Classic Shirt</h3>
                 <p>A timeless addition to any wardrobe.</p>
@@ -40,7 +56,7 @@
                 <button onclick="addToCart('Classic Shirt', 49.99)">Add to Cart</button>
             </div>
 
-            <div class="products">
+            <div class="product" data-price="79.99" data-order="2" data-size="L" data-colour="blue" data-stock="in">
                 <img src="" alt="Men's Jeans">
                 <h3>Baggy Jeans</h3>
                 <p>A staple baggy pair of jeans to go with everything.</p>
@@ -48,7 +64,7 @@
                 <button onclick="addToCart('Baggy Jeans', 79.99)">Add to Cart</button>
             </div>
 
-            <div class="products">
+            <div class="product" data-price="99.99" data-order="3" data-size="XL" data-colour="black" data-stock="out">
                 <img src="" alt="Men's Jumper">
                 <h3>Cozy Jumper</h3>
                 <p>A warm and comfortable jumper perfect for any weather.</p>

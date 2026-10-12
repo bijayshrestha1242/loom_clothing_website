@@ -287,3 +287,106 @@ function displayAdminOrders() {
 
 displayCart();
 displayOrder();
+
+function showFilterOptions() {
+    let filterType = document.getElementById("filterType").value;
+    let filterOption = document.getElementById("filterOption");
+
+    filterOption.innerHTML = "";
+
+    if (filterType === "none") {
+        filterOption.style.display = "none";
+    }
+
+    else {
+        filterOption.style.display = "inline";
+
+        if (filterType === "price") {
+            filterOption.innerHTML = `
+            <option value="default">Default Order</option>
+            <option value="ascending">Price: Low to High</option>
+            <option value="descending">Price: High to Low</option>
+            `;
+        }
+    
+    
+        else if (filterType === "size") {
+        filterOption.innerHTML = `
+        <option value="default">All Sizes</option>
+        <option value="S">Size: Small</option>
+        <option value="M">Size: Medium</option>
+        <option value="L">Size: Large</option>
+        <option value="XL">Size: Extra Large</option>
+        `;
+    }
+
+        else if (filterType === "colour") {
+        filterOption.innerHTML = `
+        <option value="default">All Colours</option>
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="blue">Blue</option>
+        `;
+    }
+
+    else if (filterType === "stock") {
+        filterOption.innerHTML = `
+        <option value="all">All Products</option>
+        <option value="in">In Stock</option>
+        <option value="out">Out of Stock</option>
+        `;
+    }
+}
+
+    filterProducts();
+}
+
+function filterProducts() {
+    let filterType = document.getElementById("filterType").value;
+    let filterValue = document.getElementById("filterOption").value;
+    let productList = document.getElementById("productList");
+    let products = Array.from(productList.children);
+
+    for (let i = 0; i < products.length; i++) {
+        products[i].style.display = "block";
+    }
+
+    products.sort(function(a, b) {
+        return Number(a.dataset.order) - Number(b.dataset.order);
+    });
+
+    if (filterType === "price") {
+        if (filterValue === "ascending") {
+            products.sort(function(a, b) {
+                return Number(a.dataset.price) - Number(b.dataset.price);
+            });
+        }
+
+        else if (filterValue === "descending") {
+            products.sort(function(a, b) {
+                return Number(b.dataset.price) - Number(a.dataset.price);
+            });
+        }
+    }
+
+    for (let i = 0; i < products.length; i++) {
+        if (filterValue !== "all" && filterType !== "price") {
+            if (filterType === "size" &&
+            products [i].dataset.size !== filterValue) {
+            products [i].style.display = "none";
+            }
+
+        else if (filterType === "colour" &&
+            products[i].dataset.colour !== filterValue) {
+            products[i].style.display = "none";
+            }
+
+        else if (filterType === "availability" &&
+            products[i].dataset.stock !== filterValue) {
+            products[i].style.display = "none";
+            }
+        }
+        
+        productList.appendChild(products[i]);
+    }
+}
