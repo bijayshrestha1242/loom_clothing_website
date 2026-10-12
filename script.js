@@ -329,7 +329,7 @@ function showFilterOptions() {
         `;
     }
 
-    else if (filterType === "stock") {
+    else if (filterType === "availability") {
         filterOption.innerHTML = `
         <option value="all">All Products</option>
         <option value="in">In Stock</option>
