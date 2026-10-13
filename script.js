@@ -436,3 +436,72 @@ function changeQuantity(index, amount) {
     localStorage.setItem("cart", JSON.stringify(cart));
     displayCart();
 }
+
+function loadProducts() {
+    let productList = document.getElementById("productList");
+
+    if (productList == null) {
+        return;
+    }
+
+    fetch("/products")
+    .then(response => response.json())
+    .then(products => {
+        productList.innerHTML = "";
+
+        let order = 1;
+
+        for (let i = 0; i < products.length; i++) {
+            let product = products[i];
+
+            if (product.category_id === 1 && product.status === "active") {
+                let item = document.createElement("div");
+                item.className = "product";
+                
+                item.dataset.price = product.price;
+                item.dataset.order = order;
+
+                if (product.name === "Classic Shirt") {
+                    item.dataset.size = "M";
+                    item.dataset.colour = "white";
+                    item.dataset.stock = "in";
+                }
+
+                else if (product.name === "Baggy Jeans") {
+                    item.dataset.size = "L";
+                    item.dataset.colour = "blue";
+                    item.dataset.stock = "in";
+                }
+
+                else if (product.name === "Cozy Jumper") {
+                    item.dataset.size = "XL";
+                    item.dataset.colour = "black";
+                    item.dataset.stock = "out";
+                }
+
+                let name = document.createElement("h3");
+                name.textContent = product.name;
+
+                let price = document.createElement("p");
+                price.textContent = "$" + Number(product.price).toFixed(2);
+
+                let button = document.createElement("button");
+                button.textContent = "Add to Cart";
+                button.onclick = function() {
+                    addToCart(product.name, Number(product.price));
+                };
+
+                item.appendChild(name);
+                item.appendChild(price);
+                item.appendChild(button);
+
+                productList.appendChild(item);
+
+                order++;
+            }
+        }
+    })
+    .catch(error => {console.error("Error loading products:", error);});
+}
+
+loadProducts();

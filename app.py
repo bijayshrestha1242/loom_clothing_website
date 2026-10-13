@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 import sqlite3
 from pathlib import Path
 
@@ -19,6 +19,36 @@ def get_products():
     connection.close()
 
     return jsonify([dict(product) for product in products])
+
+@app.route("/mens_clothing.html")
+def mens_page():
+    return send_from_directory(app.root_path, "mens_clothing.html")
+
+@app.route("/script.js")
+def javascript():
+    return send_from_directory(app.root_path, "script.js")
+
+@app.route("/style.css")
+def stylesheet():
+    return send_from_directory(app.root_path, "style.css")
+
+@app.route("/<path:filename>")
+def website_files(filename):
+    allowed_files = [
+        "homepage.html",
+        "mens_clothing.html",
+        "womens_clothing.html",
+        "checkout.html",
+        "admin_page.html",
+        "confirmation.html",
+        "script.js",
+        "style.css"
+    ]
+
+    if filename in allowed_files:
+        return send_from_directory(app.root_path, filename)
+
+    return "File not found", 404
 
 if __name__ == "__main__":
     app.run(debug=True)
