@@ -76,6 +76,21 @@ function removeFromCart(index) {
 
     displayCart();
 }
+
+function changeQuantity(index, amount) {
+    if (amount === 1) {
+        cart.push({...cart[index]});
+    }
+
+    else if (amount === -1) {
+        cart.splice(index, 1);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    displayCart();
+}
+
 function goToCheckout() {
     window.location.href = "checkout.html";
 }
