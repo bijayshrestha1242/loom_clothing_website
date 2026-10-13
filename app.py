@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request
 import sqlite3
 from pathlib import Path
 
@@ -49,6 +49,28 @@ def website_files(filename):
         return send_from_directory(app.root_path, filename)
 
     return "File not found", 404
+
+@app.route("/add-product", methods=["POST"])
+def add_product():
+    product = request.get_json()
+
+    connection = sqlite3.connect(database)
+
+    category = connection.execute(
+        "SELECT category_id FROM categories WHERE name = ?",
+        (product["category"],)
+    ).fetchone()
+
+    if category is None:
+        connection.close()
+        return jsonify({"message": "Category not found"}), 404
+
+    connection.execute("""INSERT INTO products (category_id, name, description, price, image_url, status) VALUES (?, ?, ?, ?, ?, ?)""", (category[0], product["name"], product["description"], product["price"], product["image"], "active"))
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Product added successfully!"})
 
 if __name__ == "__main__":
     app.run(debug=True)

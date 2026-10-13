@@ -218,6 +218,7 @@ function showOrders() {
     displayAdminOrders();
 }
 
+
 let addProductForm = document.getElementById("addProductForm");
 
 if (addProductForm != null) {
@@ -227,7 +228,7 @@ if (addProductForm != null) {
         let productName = document.getElementById("productName").value;
         let productDescription = document.getElementById("productDescription").value;
         let productPrice = document.getElementById("productPrice").value;
-        let productCategory = document.getElementById("productCategory").value;
+        let productCategory = document.getElementById("productCategory").value === "mens" ? "Mens" : "Womens";
         let productImage = document.getElementById("productImage").value;
 
         let product = {
@@ -238,10 +239,27 @@ if (addProductForm != null) {
             image: productImage
         };
 
-        products.push(product);
-        localStorage.setItem("products", JSON.stringify(products));
-        alert("Product added successfully!");
-        addProductForm.reset();
+        fetch("/add-product", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(product)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Couldn't add product. Please try again.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message);
+            addProductForm.reset();
+        })
+        .catch(error => {
+            alert("Error adding product");
+            console.error(error);
+        });
     });
 }
 
