@@ -35,6 +35,18 @@ function displayCart() {
         let price = Number(cart[i].price);
 
         item.textContent = cart[i].name + " - $" + price.toFixed(2) + " ";
+
+        let minusButton = document.createElement("button");
+        minusButton.textContent = "-";
+        minusButton.onclick = function() {
+            changeQuantity(i, -1);
+        };
+
+        let plusButton = document.createElement("button");
+        plusButton.textContent = "+";
+        plusButton.onclick = function() {
+            changeQuantity(i, 1);
+        };
         
         let removeButton = document.createElement("button");
         removeButton.textContent = "Remove";
@@ -42,7 +54,10 @@ function displayCart() {
             removeFromCart(i);
         };
 
+        item.appendChild(minusButton);
+        item.appendChild(plusButton);
         item.appendChild(removeButton);
+
         cartItems.appendChild(item);
 
         total = total + price;
@@ -53,6 +68,7 @@ function displayCart() {
 
     cartTotal.textContent = "Total: $" + finalTotal.toFixed(2);
 }
+
 function removeFromCart(index) {
     cart.splice(index, 1);
 
@@ -389,4 +405,19 @@ function filterProducts() {
         
         productList.appendChild(products[i]);
     }
+}
+
+function changeQuantity(index, amount) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (amount === 1) {
+        cart.push(cart[index]);
+    }
+
+    else if (amount === -1) {
+        cart.splice(index, 1);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    displayCart();
 }
