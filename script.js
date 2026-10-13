@@ -454,7 +454,7 @@ function loadProducts() {
         for (let i = 0; i < products.length; i++) {
             let product = products[i];
 
-            if (product.category_id === 1 && product.status === "active") {
+            if (product.category_name === productList.dataset.category && product.status === "active") {
                 let item = document.createElement("div");
                 item.className = "product";
                 
@@ -474,6 +474,24 @@ function loadProducts() {
                 }
 
                 else if (product.name === "Cozy Jumper") {
+                    item.dataset.size = "XL";
+                    item.dataset.colour = "black";
+                    item.dataset.stock = "out";
+                }
+
+                else if (product.name === "Staple Shirt") {
+                    item.dataset.size = "M"
+                    item.dataset.colour = "white";
+                    item.dataset.stock = "in";
+                }
+
+                else if (product.name === "Classic Jeans") {
+                    item.dataset.size = "L";
+                    item.dataset.colour = "blue";
+                    item.dataset.stock = "in";
+                }
+
+                else if (product.name === "Casual Jumper") {
                     item.dataset.size = "XL";
                     item.dataset.colour = "black";
                     item.dataset.stock = "out";

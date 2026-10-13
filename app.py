@@ -15,7 +15,7 @@ def get_products():
     connection = sqlite3.connect(database)
     connection.row_factory = sqlite3.Row
 
-    products = connection.execute("SELECT * FROM products").fetchall()
+    products = connection.execute("""SELECT products.*, categories.name AS category_name FROM products JOIN categories ON products.category_id = categories.category_id""").fetchall()
     connection.close()
 
     return jsonify([dict(product) for product in products])
