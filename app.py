@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, send_from_directory, request, session
 import sqlite3
 from pathlib import Path
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.secret_key = "loom-is-the-best"
 
 database = Path(__file__).with_name("Loom.db")
 
@@ -43,6 +44,7 @@ def website_files(filename):
         "admin_page.html",
         "confirmation.html",
         "register.html",
+        "login.html",
         "script.js",
         "style.css"
     ]
@@ -129,6 +131,33 @@ def register():
     connection.close()
 
     return jsonify({"message": "Account has been created!"})
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    customer = request.get_json()
+
+    email = customer.get("email", "").strip().lower()
+    password = customer.get("password", "")
+
+    connection = sqlite3.connect(database)
+    connection.row_factory = sqlite3.Row
+
+    user = connection.execute(
+        "SELECT * FROM Customers WHERE email = ?",
+        (email,)
+    ).fetchone()
+
+    connection.close()
+
+    if user is None or not check_password_hash(user["password"], password):
+        return jsonify({"message": "Incorrect email or password"}), 401
+
+    session.clear()
+    session["user_id"] = user["user_id"]
+    session["name"] = user["name"]
+
+    return jsonify({"message": "Login successful!"})
 
 if __name__ == "__main__":
     app.run(debug=True)
