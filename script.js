@@ -273,21 +273,27 @@ if (editProductForm != null) {
         let newProductDescription = document.getElementById("editProductDescription").value;
         let newProductPrice = document.getElementById("editProductPrice").value;
 
-        for (let i = 0; i < products.length; i++) {
-            if (products[i].name === productName) {
-                products[i].description = newProductDescription;
-                products[i].price = Number(newProductPrice);
-                localStorage.setItem("products", JSON.stringify(products));
-                alert("Product updated successfully!");
-                editProductForm.reset();
-                return;
-            }
-        }
-        alert("Product not found.");
+        let product = {name: productName, description: newProductDescription, price: Number(newProductPrice)};
 
+        fetch("/edit-product", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(product)
+        })
+
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Product not found or couldn't be updated");
+            }
+            return response.json()
+        })
+
+        .then(data => {
+            alert(data.message);
+            editProductForm.reset();
+        });
     });
 }
-
 
 let removeProductForm = document.getElementById("removeProductForm");
 
@@ -308,7 +314,7 @@ if (removeProductForm != null) {
             alert(data.message);
             removeProductForm.reset();
         })
-        
+
         .catch(error => {
             alert("Error removing product");
             console.error(error);

@@ -87,6 +87,21 @@ def remove_product():
 
     return jsonify({"message": "Product removed successfully!"})
 
+@app.route("/edit-product", methods=["POST"])
+def edit_product():
+    product = request.get_json()
+
+    connection = sqlite3.connect(database)
+    cursor = connection.execute("""UPDATE products SET description = ?, price = ? WHERE name = ?""", (product["description"], product["price"], product["name"]))
+
+    connection.commit()
+    connection.close()
+
+    if cursor.rowcount == 0:
+        return jsonify({"message": "Product not found"}), 404
+
+    return jsonify({"message": "Product updated successfully!"})
+
 
 if __name__ == "__main__":
     app.run(debug=True)
