@@ -285,7 +285,7 @@ if (editProductForm != null) {
             if (!response.ok) {
                 throw new Error("Product not found or couldn't be updated");
             }
-            return response.json()
+            return response.json();
         })
 
         .then(data => {
@@ -554,3 +554,41 @@ function loadProducts() {
 }
 
 loadProducts();
+
+let registerForm = document.getElementById("registerForm");
+
+if (registerForm != null) {
+    registerForm.addEventListener("submit", function(event){
+        event.preventDefault();
+
+        let customer = {
+            name: document.getElementById("registerName").value,
+            email: document.getElementById("registerEmail").value,
+            password: document.getElementById("registerPassword").value
+        };
+
+        fetch("/register", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(customer)
+        })
+
+        .then(response => response.json().then(data => ({
+            ok: response.ok,
+            data: data
+        })))
+
+        .then(result => {
+            alert(result.data.message);
+
+            if (result.ok) {
+                registerForm.reset();
+            }
+        })
+
+        .catch(error => {
+            alert("Error creating account");
+            console.error(error);
+        });
+    });
+}

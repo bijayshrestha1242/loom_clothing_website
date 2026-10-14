@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, send_from_directory, request
 import sqlite3
 from pathlib import Path
+from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 
@@ -41,6 +42,7 @@ def website_files(filename):
         "checkout.html",
         "admin_page.html",
         "confirmation.html",
+        "register.html",
         "script.js",
         "style.css"
     ]
@@ -102,6 +104,31 @@ def edit_product():
 
     return jsonify({"message": "Product updated successfully!"})
 
+@app.route("/register", methods=["POST"])
+def register():
+    customer = request.get_json()
+
+    name = customer.get("name", "").strip()
+    email = customer.get("email", "").strip().lower()
+    password = customer.get("password","")
+
+    if not name or not email or not password:
+        return jsonify({"message": "Please fill all fields"}), 400
+    
+    connection = sqlite3.connect(database)
+    existing = connection.execute("SELECT user_id FROM Customers WHERE email = ?", (email,)).fetchone()
+
+    if existing:
+        connection.close()
+        return jsonify({"message": "Email already registered"}), 400
+
+    hashed_password = generate_password_hash(password)
+
+    connection.execute("INSERT INTO Customers (name, email, password) VALUES (?, ?, ?)", (name, email, hashed_password))
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Account has been created!"})
 
 if __name__ == "__main__":
     app.run(debug=True)
