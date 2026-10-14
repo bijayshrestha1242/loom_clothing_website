@@ -288,6 +288,7 @@ if (editProductForm != null) {
     });
 }
 
+
 let removeProductForm = document.getElementById("removeProductForm");
 
 if (removeProductForm != null) {
@@ -296,16 +297,22 @@ if (removeProductForm != null) {
 
         let productName = document.getElementById("removeProductName").value;
 
-        for (let i = 0; i < products.length; i++) {
-            if (products[i].name === productName) {
-                products.splice(i, 1);
-                localStorage.setItem("products", JSON.stringify(products));
-                alert("Product removed successfully!");
-                removeProductForm.reset();
-                return;
-            }
-        }
-        alert("Product not found.");
+        fetch("/remove-product", {
+            method: "POST",
+            headers: { "Content-Type": "application/json"},
+            body: JSON.stringify({name: productName})
+        })
+
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            removeProductForm.reset();
+        })
+        
+        .catch(error => {
+            alert("Error removing product");
+            console.error(error);
+        });
     });
 }
 

@@ -72,5 +72,21 @@ def add_product():
 
     return jsonify({"message": "Product added successfully!"})
 
+@app.route("/remove-product",
+methods=["POST"])
+def remove_product():
+    product = request.get_json()
+
+    connection = sqlite3.connect(database)
+    cursor = connection.execute("DELETE FROM products WHERE name = ?", (product["name"],))
+
+    connection.commit()
+    connection.close()
+
+    if cursor.rowcount == 0: return jsonify({"message": "Product not found"}), 404
+
+    return jsonify({"message": "Product removed successfully!"})
+
+
 if __name__ == "__main__":
     app.run(debug=True)
