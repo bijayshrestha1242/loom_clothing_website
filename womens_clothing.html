@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Women's Clothing</title>
-    <link rel="stylesheet" href="style.css">
-
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -18,9 +17,8 @@
 
             <ul class="nav-links">
                 <li><a href="homepage.html">Home</a></li>
-                <li><a href="mens_clothing.html">Mens</a></li>
-                <li><a href="womens_clothing.html">Womens</a></li>
-                <li><a href="admin_page.html">Admin</a></li>
+                <li><a href="mens_clothing.html">Men's Clothing</a></li>
+                <li><a href="womens_clothing.html">Women's Clothing</a></li>
             </ul>
         </nav>
     </header>
@@ -31,31 +29,33 @@
             <p>Explore our collection of women's clothing and find the perfect outfit for any occasion.</p>
         </section>
 
-        <section class="product-grid">
-            <div class="product-card">
-                <img src="https://tse3.mm.bing.net/th/id/OIP.AHBI33heIaZwE-qnUROXEQHaIi?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Women's Shirt">
+        <section class="products">
+            <div class="product">
+                <img src="" alt="Women's Shirt">
                 <h3>Staple Shirt</h3>
                 <p>A timeless addition to her wardrobe.</p>
                 <p>$49.99</p>
-                <button class="btn" onclick="addToCart('Staple Shirt', 49.99)">Add to Cart</button>
+                <button onclick="addToCart('Staple Shirt', 49.99)">Add to Cart</button>
             </div>
 
-            <div class="product-card">
-                <img src="https://tse2.mm.bing.net/th/id/OIP.o7h433w0YIt0HoYzDwfYhwHaLH?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Classic Jeans">
+            <div class="product">
+                <img src="" alt="Classic Jeans">
                 <h3>Classic Jeans</h3>
                 <p>A staple pair of jeans to go with everything.</p>
                 <p>$79.99</p>
-                <button class="btn" onclick="addToCart('Classic Jeans', 79.99)">Add to Cart</button>
+                <button onclick="addToCart('Classic Jeans', 79.99)">Add to Cart</button>
             </div>
 
-            <div class="product-card">
-                <img src="https://i5.walmartimages.com/seo/Cable-Knit-Sweaters-for-Women-Long-Sleeve-Knit-Jumper-Top-Pullover-Crochet-Sweater-Fall-Outfits-for-Women-Business-Casual-Outfits-for-Women_c6817e87-862f-410c-82f7-2fccdd051e8f.635acd3d67f492fc8f32c1da6856ade8.jpeg" alt="Casual Jumper">
+            <div class="product">
+                <img src="" alt="Casual Jumper">
                 <h3>Casual Jumper</h3>
                 <p>A warm and comfortable jumper perfect for any weather.</p>
                 <p>$99.99</p>
-                <button class="btn" onclick="addToCart('Casual Jumper', 99.99)">Add to Cart</button>
+                <button onclick="addToCart('Casual Jumper', 99.99)">Add to Cart</button>
             </div>
         </section>
+        
+        <section class="products" id="productList" data-category="Womens"></section>
 
          <section>
             <h2>Your Cart</h2>
