@@ -35,18 +35,6 @@ function displayCart() {
         let price = Number(cart[i].price);
 
         item.textContent = cart[i].name + " - $" + price.toFixed(2) + " ";
-
-        let minusButton = document.createElement("button");
-        minusButton.textContent = "-";
-        minusButton.onclick = function() {
-            changeQuantity(i, -1);
-        };
-
-        let plusButton = document.createElement("button");
-        plusButton.textContent = "+";
-        plusButton.onclick = function() {
-            changeQuantity(i, 1);
-        };
         
         let removeButton = document.createElement("button");
         removeButton.textContent = "Remove";
@@ -54,10 +42,7 @@ function displayCart() {
             removeFromCart(i);
         };
 
-        item.appendChild(minusButton);
-        item.appendChild(plusButton);
         item.appendChild(removeButton);
-
         cartItems.appendChild(item);
 
         total = total + price;
@@ -68,7 +53,6 @@ function displayCart() {
 
     cartTotal.textContent = "Total: $" + finalTotal.toFixed(2);
 }
-
 function removeFromCart(index) {
     cart.splice(index, 1);
 
@@ -76,21 +60,6 @@ function removeFromCart(index) {
 
     displayCart();
 }
-
-function changeQuantity(index, amount) {
-    if (amount === 1) {
-        cart.push({...cart[index]});
-    }
-
-    else if (amount === -1) {
-        cart.splice(index, 1);
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-
-    displayCart();
-}
-
 function goToCheckout() {
     window.location.href = "checkout.html";
 }
@@ -218,7 +187,6 @@ function showOrders() {
     displayAdminOrders();
 }
 
-
 let addProductForm = document.getElementById("addProductForm");
 
 if (addProductForm != null) {
@@ -228,7 +196,7 @@ if (addProductForm != null) {
         let productName = document.getElementById("productName").value;
         let productDescription = document.getElementById("productDescription").value;
         let productPrice = document.getElementById("productPrice").value;
-        let productCategory = document.getElementById("productCategory").value === "mens" ? "Mens" : "Womens";
+        let productCategory = document.getElementById("productCategory").value;
         let productImage = document.getElementById("productImage").value;
 
         let product = {
@@ -239,27 +207,10 @@ if (addProductForm != null) {
             image: productImage
         };
 
-        fetch("/add-product", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(product)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Couldn't add product. Please try again.");
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message);
-            addProductForm.reset();
-        })
-        .catch(error => {
-            alert("Error adding product");
-            console.error(error);
-        });
+        products.push(product);
+        localStorage.setItem("products", JSON.stringify(products));
+        alert("Product added successfully!");
+        addProductForm.reset();
     });
 }
 
@@ -273,25 +224,18 @@ if (editProductForm != null) {
         let newProductDescription = document.getElementById("editProductDescription").value;
         let newProductPrice = document.getElementById("editProductPrice").value;
 
-        let product = {name: productName, description: newProductDescription, price: Number(newProductPrice)};
-
-        fetch("/edit-product", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(product)
-        })
-
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Product not found or couldn't be updated");
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].name === productName) {
+                products[i].description = newProductDescription;
+                products[i].price = Number(newProductPrice);
+                localStorage.setItem("products", JSON.stringify(products));
+                alert("Product updated successfully!");
+                editProductForm.reset();
+                return;
             }
-            return response.json();
-        })
+        }
+        alert("Product not found.");
 
-        .then(data => {
-            alert(data.message);
-            editProductForm.reset();
-        });
     });
 }
 
@@ -303,22 +247,16 @@ if (removeProductForm != null) {
 
         let productName = document.getElementById("removeProductName").value;
 
-        fetch("/remove-product", {
-            method: "POST",
-            headers: { "Content-Type": "application/json"},
-            body: JSON.stringify({name: productName})
-        })
-
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            removeProductForm.reset();
-        })
-
-        .catch(error => {
-            alert("Error removing product");
-            console.error(error);
-        });
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].name === productName) {
+                products.splice(i, 1);
+                localStorage.setItem("products", JSON.stringify(products));
+                alert("Product removed successfully!");
+                removeProductForm.reset();
+                return;
+            }
+        }
+        alert("Product not found.");
     });
 }
 
@@ -349,246 +287,3 @@ function displayAdminOrders() {
 
 displayCart();
 displayOrder();
-
-function showFilterOptions() {
-    let filterType = document.getElementById("filterType").value;
-    let filterOption = document.getElementById("filterOption");
-
-    filterOption.innerHTML = "";
-
-    if (filterType === "none") {
-        filterOption.style.display = "none";
-    }
-
-    else {
-        filterOption.style.display = "inline";
-
-        if (filterType === "price") {
-            filterOption.innerHTML = `
-            <option value="default">Default Order</option>
-            <option value="ascending">Price: Low to High</option>
-            <option value="descending">Price: High to Low</option>
-            `;
-        }
-    
-    
-        else if (filterType === "size") {
-        filterOption.innerHTML = `
-        <option value="default">All Sizes</option>
-        <option value="S">Size: Small</option>
-        <option value="M">Size: Medium</option>
-        <option value="L">Size: Large</option>
-        <option value="XL">Size: Extra Large</option>
-        `;
-    }
-
-        else if (filterType === "colour") {
-        filterOption.innerHTML = `
-        <option value="default">All Colours</option>
-        <option value="white">White</option>
-        <option value="black">Black</option>
-        <option value="blue">Blue</option>
-        `;
-    }
-
-    else if (filterType === "availability") {
-        filterOption.innerHTML = `
-        <option value="all">All Products</option>
-        <option value="in">In Stock</option>
-        <option value="out">Out of Stock</option>
-        `;
-    }
-}
-
-    filterProducts();
-}
-
-function filterProducts() {
-    let filterType = document.getElementById("filterType").value;
-    let filterValue = document.getElementById("filterOption").value;
-    let productList = document.getElementById("productList");
-    let products = Array.from(productList.children);
-
-    for (let i = 0; i < products.length; i++) {
-        products[i].style.display = "block";
-    }
-
-    products.sort(function(a, b) {
-        return Number(a.dataset.order) - Number(b.dataset.order);
-    });
-
-    if (filterType === "price") {
-        if (filterValue === "ascending") {
-            products.sort(function(a, b) {
-                return Number(a.dataset.price) - Number(b.dataset.price);
-            });
-        }
-
-        else if (filterValue === "descending") {
-            products.sort(function(a, b) {
-                return Number(b.dataset.price) - Number(a.dataset.price);
-            });
-        }
-    }
-
-    for (let i = 0; i < products.length; i++) {
-        if (filterValue !== "all" && filterType !== "price") {
-            if (filterType === "size" &&
-            products [i].dataset.size !== filterValue) {
-            products [i].style.display = "none";
-            }
-
-        else if (filterType === "colour" &&
-            products[i].dataset.colour !== filterValue) {
-            products[i].style.display = "none";
-            }
-
-        else if (filterType === "availability" &&
-            products[i].dataset.stock !== filterValue) {
-            products[i].style.display = "none";
-            }
-        }
-        
-        productList.appendChild(products[i]);
-    }
-}
-
-function changeQuantity(index, amount) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    if (amount === 1) {
-        cart.push(cart[index]);
-    }
-
-    else if (amount === -1) {
-        cart.splice(index, 1);
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    displayCart();
-}
-
-function loadProducts() {
-    let productList = document.getElementById("productList");
-
-    if (productList == null) {
-        return;
-    }
-
-    fetch("/products")
-    .then(response => response.json())
-    .then(products => {
-        productList.innerHTML = "";
-
-        let order = 1;
-
-        for (let i = 0; i < products.length; i++) {
-            let product = products[i];
-
-            if (product.category_name === productList.dataset.category && product.status === "active") {
-                let item = document.createElement("div");
-                item.className = "product";
-                
-                item.dataset.price = product.price;
-                item.dataset.order = order;
-
-                if (product.name === "Classic Shirt") {
-                    item.dataset.size = "M";
-                    item.dataset.colour = "white";
-                    item.dataset.stock = "in";
-                }
-
-                else if (product.name === "Baggy Jeans") {
-                    item.dataset.size = "L";
-                    item.dataset.colour = "blue";
-                    item.dataset.stock = "in";
-                }
-
-                else if (product.name === "Cozy Jumper") {
-                    item.dataset.size = "XL";
-                    item.dataset.colour = "black";
-                    item.dataset.stock = "out";
-                }
-
-                else if (product.name === "Staple Shirt") {
-                    item.dataset.size = "M"
-                    item.dataset.colour = "white";
-                    item.dataset.stock = "in";
-                }
-
-                else if (product.name === "Classic Jeans") {
-                    item.dataset.size = "L";
-                    item.dataset.colour = "blue";
-                    item.dataset.stock = "in";
-                }
-
-                else if (product.name === "Casual Jumper") {
-                    item.dataset.size = "XL";
-                    item.dataset.colour = "black";
-                    item.dataset.stock = "out";
-                }
-
-                let name = document.createElement("h3");
-                name.textContent = product.name;
-
-                let price = document.createElement("p");
-                price.textContent = "$" + Number(product.price).toFixed(2);
-
-                let button = document.createElement("button");
-                button.textContent = "Add to Cart";
-                button.onclick = function() {
-                    addToCart(product.name, Number(product.price));
-                };
-
-                item.appendChild(name);
-                item.appendChild(price);
-                item.appendChild(button);
-
-                productList.appendChild(item);
-
-                order++;
-            }
-        }
-    })
-    .catch(error => {console.error("Error loading products:", error);});
-}
-
-loadProducts();
-
-let registerForm = document.getElementById("registerForm");
-
-if (registerForm != null) {
-    registerForm.addEventListener("submit", function(event){
-        event.preventDefault();
-
-        let customer = {
-            name: document.getElementById("registerName").value,
-            email: document.getElementById("registerEmail").value,
-            password: document.getElementById("registerPassword").value
-        };
-
-        fetch("/register", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(customer)
-        })
-
-        .then(response => response.json().then(data => ({
-            ok: response.ok,
-            data: data
-        })))
-
-        .then(result => {
-            alert(result.data.message);
-
-            if (result.ok) {
-                registerForm.reset();
-            }
-        })
-
-        .catch(error => {
-            alert("Error creating account");
-            console.error(error);
-        });
-    });
-}

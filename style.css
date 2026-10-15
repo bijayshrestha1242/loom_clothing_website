@@ -289,19 +289,10 @@ footer {
     color: white;
     text-align: center;
     padding: 15px;
-<<<<<<< HEAD
     margin-top: auto;
 }
 
 /*  MOBILE RESPONSIVE*/
-=======
-    margin-top: 40px;
-}
-
-/* 
-   MOBILE RESPONSIVE
- */
->>>>>>> javascript
 @media (max-width: 600px) {
 
     nav {
@@ -352,80 +343,3 @@ footer {
         padding: 10px;
     }
 }
-<<<<<<< HEAD
-=======
-/* LOGIN & REGISTRATION */
-.auth-page {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #f4f2ef;
-}
-.auth-page nav { max-width: 1120px; margin: 0 auto; }
-.auth-main {
-    flex: 1;
-    display: grid;
-    place-items: center;
-    padding: 56px 20px;
-}
-.auth-card {
-    width: 100%;
-    max-width: 460px;
-    padding: 40px;
-    background: #fff;
-    border: 1px solid #e4e0da;
-    border-radius: 12px;
-    box-shadow: 0 12px 36px rgba(34, 34, 34, 0.06);
-}
-.auth-eyebrow {
-    margin-bottom: 12px;
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    color: #666;
-}
-.auth-card h1 { font-size: 30px; line-height: 1.2; margin-bottom: 12px; }
-.auth-intro { color: #666; margin-bottom: 28px; }
-.auth-form { display: grid; gap: 20px; }
-.auth-field label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: bold; }
-.auth-field input {
-    display: block;
-    width: 100%;
-    min-height: 48px;
-    padding: 11px 13px;
-    border: 1px solid #bbb;
-    border-radius: 5px;
-    background: #fff;
-    color: #222;
-    font-size: 16px;
-}
-.auth-field input:focus-visible,
-.auth-form button:focus-visible,
-.auth-page a:focus-visible { outline: 3px solid #377e89; outline-offset: 3px; }
-.auth-field input:focus { border-color: #222; }
-.auth-hint { margin-top: 6px; color: #666; font-size: 13px; }
-.auth-form button {
-    width: 100%;
-    min-height: 48px;
-    margin-top: 4px;
-    padding: 12px 20px;
-    border: 0;
-    border-radius: 5px;
-    background: #222;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.auth-form button:hover { background: #444; }
-.auth-form button:active { background: #111; }
-.auth-switch { margin-top: 26px; padding-top: 22px; border-top: 1px solid #eee; text-align: center; font-size: 14px; color: #666; }
-.auth-switch a { color: #222; font-weight: bold; text-underline-offset: 3px; }
-@media (max-width: 600px) {
-    .auth-page .nav-links { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 16px; }
-    .auth-page .nav-links a { font-size: 14px; }
-    .auth-main { padding: 32px 16px; }
-    .auth-card { padding: 28px 22px; }
-    .auth-card h1 { font-size: 26px; }
-}
->>>>>>> javascript
