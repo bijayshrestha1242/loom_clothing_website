@@ -159,5 +159,20 @@ def login():
 
     return jsonify({"message": "Login successful!"})
 
+@app.route("/check-login")
+def check_login():
+    if "user_id" in session:
+        return jsonify({
+            "logged_in": True,
+            "name": session["name"]
+        })
+
+        return jsonify({"logged_in": False})
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    return jsonify({"message": "Logged out successfully"})
+
 if __name__ == "__main__":
     app.run(debug=True)

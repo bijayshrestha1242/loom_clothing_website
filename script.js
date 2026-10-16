@@ -555,10 +555,11 @@ function loadProducts() {
 
 loadProducts();
 
+
 let registerForm = document.getElementById("registerForm");
 
 if (registerForm != null) {
-    registerForm.addEventListener("submit", function(event){
+    registerForm.addEventListener("submit", function(event) {
         event.preventDefault();
 
         let customer = {
@@ -569,26 +570,94 @@ if (registerForm != null) {
 
         fetch("/register", {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(customer)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+
+            if (data.message === "Account created successfully!") {
+                registerForm.reset();
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Error connecting to server");
+        });
+    });
+}
+
+
+let loginForm = document.getElementById("loginForm");
+
+if (loginForm != null) {
+    loginForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let customer = {
+            email: document.getElementById("loginEmail").value,
+            password: document.getElementById("loginPassword").value
+        };
+
+        fetch("/login", {
+            method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(customer)
         })
 
         .then(response => response.json().then(data => ({
             ok: response.ok,
-            data: data
+            message: data.message
         })))
 
         .then(result => {
-            alert(result.data.message);
+            alert(result.message);
 
             if (result.ok) {
-                registerForm.reset();
+                window.location.href = "homepage.html";
             }
         })
-
+        
         .catch(error => {
-            alert("Error creating account");
             console.error(error);
+            alert("Error connecting to server");
         });
     });
+}
+
+let loginNavigation = document.getElementById("loginNavigation");
+
+if (loginNavigation != null) {
+    fetch("/check-login")
+    .then(response => response.json())
+    .then(data => {
+        if (data.logged_in){
+            loginNavigation.textContent = "";
+
+            let customerName = document.createElement("span");
+            customerName.textContent = "Hi, " + data.name + " ";
+
+            let logoutButton = document.createElement("button");
+            logoutButton.textContent = "Logout"
+            logoutButton.addEventListener("click", logout);
+
+            loginNavigation.appendChild(customerName);
+            loginNavigation.appendChild(logoutButton);
+        }
+    })
+    .catch(error => console.error(error));   
+}
+
+function logout() {
+    fetch("/logout", {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(data => {alert(data.message);
+        window.location.href = "homepage.html";
+    })
+    .catch(error => console.error(error));
 }
