@@ -11,33 +11,33 @@
 
     <header>
         <nav>
-            <h1>
-                <a href="homepage.html">Loom Clothing</a>
-            </h1>
+            <div class="logo">
+                                <a href="homepage.html">Loom Clothing</a>
+            </div>
 
-            <ul>
+            <ul class="nav-links">
                 <li><a href="homepage.html">Home</a></li>
-                <li><a href="mens_clothing.html">Men's Clothing</a></li>
-                <li><a href="womens_clothing.html">Women's Clothing</a></li>
-                <li><a href="login.html">Login</a></li>
+                <li><a href="mens_clothing.html">Mens</a></li>
+                <li><a href="womens_clothing.html">Womens</a></li>
+                <li><a href="admin_page.html">Admin</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <section>
+        <section class="admin-section">
             <h2>Admin Dashboard</h2>
             <button onclick="adminLogout()">Logout</button>
             <p>Welcome to the admin page. Manage Loom products and view orders.</p>
-        </section>
+        
 
-        <section>
+        
             <h2>Product Management</h2>
             <p>Here you can add, edit, or remove products from the store.</p>
 
-            <button onclick="showAddProduct()">Add Product</button>
-            <button onclick="showEditProduct()">Edit Product</button>
-            <button onclick="showRemoveProduct()">Remove Product</button>
+            <button class="btn" onclick="showAddProduct()">Add Product</button>
+            <button class="btn" onclick="showEditProduct()">Edit Product</button>
+            <button class="btn" onclick="showRemoveProduct()">Remove Product</button>
 
             <section id="addProductSection" style="display: none;">
                 <h3>Add New Product</h3>
@@ -61,7 +61,7 @@
                     <label for="productImage">Image URL:</label>
                     <input type="url" id="productImage" name="productImage" required>
 
-                    <button type="submit">Add Product</button>
+                    <button class="btn" type="submit">Add Product</button>
                 </form>
             </section>
 
@@ -78,7 +78,7 @@
                     <label for="editProductPrice">Price:</label>
                     <input type="number" id="editProductPrice" name="editProductPrice" step="0.01" required>
 
-                    <button type="submit">Edit Product</button>
+                    <button class="btn" type="submit">Edit Product</button>
                 </form>
             </section>
 
@@ -88,17 +88,17 @@
                 <form id="removeProductForm">
                     <label for="removeProductName">Product Name:</label>
                     <input type="text" id="removeProductName" name="removeProductName" required>
-                    <button type="submit">Remove Product</button>
+                    <button  class="btn" type="submit">Remove Product</button>
                 </form>
             </section>
 
-        </section>
+        
 
-        <section>
+        <div class="admin-section">
             <h2>Order Management</h2>
             <p>View and manage customer orders.</p>
-            <button onclick="showOrders()">View Orders</button>
-        </section>
+            <button class="btn" onclick="showOrders()">View Orders</button>
+        </div>
 
         <section id="ordersSection" style="display: none;">
             <h3>Customer Orders</h3>
@@ -106,7 +106,11 @@
             <p id="adminOrderTotal"></p>
         </section>
         
+        
     </main>
+     <footer>
+    <p>© 2024 Loom Clothing</p>
+</footer>
 
     <script src="script.js"></script>
     <link rel="stylesheet" href="style.css">

@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Women's Clothing</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
     <header>
         <nav>
-            <h1>
-                <a href="homepage.html">Loom Clothing</a>
-            </h1>
+            <div class="logo">
+                                <a href="homepage.html">Loom Clothing</a>
+            </div>
 
-            <ul>
+            <ul class="nav-links">
                 <li><a href="homepage.html">Home</a></li>
                 <li><a href="mens_clothing.html">Men's Clothing</a></li>
                 <span id="loginNavigation">
@@ -31,20 +31,30 @@
             <p>Explore our collection of women's clothing and find the perfect outfit for any occasion.</p>
         </section>
 
-        <section>
-            <h3>Filter Products</h3>
+        <section class="products">
+            <div class="product">
+                <img src="" alt="Women's Shirt">
+                <h3>Staple Shirt</h3>
+                <p>A timeless addition to her wardrobe.</p>
+                <p>$49.99</p>
+                <button onclick="addToCart('Staple Shirt', 49.99)">Add to Cart</button>
+            </div>
 
-            <label for="filterType">Filter By:</label>
-            <select id="filterType" onchange="showFilterOptions()">
-                <option value="none">Select Filter</option>
-                <option value="price">Price</option>
-                <option value="size">Size</option>
-                <option value="colour">Colour</option>
-                <option value="availability">Availability</option>
-            </select>
+            <div class="product">
+                <img src="" alt="Classic Jeans">
+                <h3>Classic Jeans</h3>
+                <p>A staple pair of jeans to go with everything.</p>
+                <p>$79.99</p>
+                <button onclick="addToCart('Classic Jeans', 79.99)">Add to Cart</button>
+            </div>
 
-            <select id="filterOption" onchange="filterProducts()" style="display: none;">
-            </select>
+            <div class="product">
+                <img src="" alt="Casual Jumper">
+                <h3>Casual Jumper</h3>
+                <p>A warm and comfortable jumper perfect for any weather.</p>
+                <p>$99.99</p>
+                <button onclick="addToCart('Casual Jumper', 99.99)">Add to Cart</button>
+            </div>
         </section>
         
         <section class="products" id="productList" data-category="Womens"></section>
@@ -53,10 +63,13 @@
             <h2>Your Cart</h2>
             <ul id="cartItems"></ul>
             <p id="cartTotal">Total: $0.00</p>
-            <button onclick="goToCheckout()">Checkout</button>
+            <button class="btn" onclick="goToCheckout()">Checkout</button>
         </section>
 
     </main>
+     <footer>
+    <p>© 2024 Loom Clothing</p>
+</footer>
 
     <script src="script.js"></script>
 </body>
