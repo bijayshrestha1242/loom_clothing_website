@@ -661,3 +661,51 @@ function logout() {
     })
     .catch(error => console.error(error));
 }
+
+let adminLoginForm = document.getElementById("adminLoginForm");
+
+if (adminLoginForm != null) {
+    adminLoginForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let admin = {
+            email: document.getElementById("adminEmail").value,
+            password: document.getElementById("adminPassword").value
+        };
+
+        fetch("/admin-login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(admin)
+        })
+
+        .then(response => response.json().then(data => ({
+            ok: response.ok,
+            message: data.message
+        })))
+
+        .then(result => {
+            alert(result.message);
+
+            if (result.ok) {
+                window.location.href = "admin_page.html";
+            }
+        })
+
+        .catch(error => {
+            console.error(error);
+            alert("Error connecting to server");
+        });
+    });
+}
+
+function adminLogout() {
+    fetch("/admin-logout", {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        window.location.href = "admin_login.html";
+    });
+}

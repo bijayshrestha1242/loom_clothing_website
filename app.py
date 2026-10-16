@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_from_directory, request, session
+from flask import Flask, jsonify, send_from_directory, request, session, redirect
 import sqlite3
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -34,6 +34,13 @@ def javascript():
 def stylesheet():
     return send_from_directory(app.root_path, "style.css")
 
+@app.route("/admin_page.html")
+def admin_page():
+    if "admin_id" not in session:
+        return redirect("/admin_login.html")
+
+    return send_from_directory(app.root_path, "admin_page.html")
+
 @app.route("/<path:filename>")
 def website_files(filename):
     allowed_files = [
@@ -44,6 +51,7 @@ def website_files(filename):
         "admin_page.html",
         "confirmation.html",
         "register.html",
+        "admin_login.html",
         "login.html",
         "script.js",
         "style.css"
@@ -56,6 +64,9 @@ def website_files(filename):
 
 @app.route("/add-product", methods=["POST"])
 def add_product():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+   
     product = request.get_json()
 
     connection = sqlite3.connect(database)
@@ -79,6 +90,9 @@ def add_product():
 @app.route("/remove-product",
 methods=["POST"])
 def remove_product():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+    
     product = request.get_json()
 
     connection = sqlite3.connect(database)
@@ -93,6 +107,9 @@ def remove_product():
 
 @app.route("/edit-product", methods=["POST"])
 def edit_product():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+        
     product = request.get_json()
 
     connection = sqlite3.connect(database)
@@ -167,12 +184,41 @@ def check_login():
             "name": session["name"]
         })
 
-        return jsonify({"logged_in": False})
+    return jsonify({"logged_in": False})
 
 @app.route("/logout", methods=["POST"])
 def logout():
     session.clear()
     return jsonify({"message": "Logged out successfully"})
+
+@app.route("/admin-login", methods=["POST"])
+def admin_login():
+    details = request.get_json()
+
+    email = details.get("email", "").strip().lower()
+    password = details.get("password", "")
+
+    connection = sqlite3.connect(database)
+    connection.row_factory = sqlite3.Row
+
+    admin = connection.execute(
+        "SELECT * FROM Admin WHERE email = ?", (email,)).fetchone()
+
+    connection.close()
+
+    if admin is None or not check_password_hash(admin["password"], password):
+        return jsonify({"message": "Incorrect email or password"}), 401
+    
+    session.clear()
+    session["admin_id"] = admin["admin_id"]
+    session["admin_name"] = admin["name"]
+
+    return jsonify({"message": "Admin login successful"})
+
+@app.route("/admin-logout", methods=["POST"])
+def admin_logout():
+    session.clear()
+    return jsonify({"message": "Admin logout successful"})
 
 if __name__ == "__main__":
     app.run(debug=True)
