@@ -242,14 +242,17 @@ function displayOrder(){
 }
 
 function showAddProduct() {
+    document.getElementById("manageCustomersSection").style.display = "none";
     document.getElementById("addProductSection").style.display = "block";
 }
 
 function showEditProduct() {
+    document.getElementById("manageCustomersSection").style.display = "none";
     document.getElementById("editProductSection").style.display = "block";
 }
 
 function showRemoveProduct() {
+    document.getElementById("manageCustomersSection").style.display = "none";
     document.getElementById("removeProductSection").style.display = "block";
 }
 
@@ -826,6 +829,8 @@ if (orderHistory != null) {
 }
 
 function showManageOrders() {
+    document.getElementById("manageCustomersSection").style.display = "none";
+    
     let sections = [
         "addProductSection",
         "removeProductSection",
@@ -945,7 +950,7 @@ function updateOrderStatus(orderId, status) {
             status: status
         })
     })
-    
+
     .then(response => response.json().then(data => ({
         ok: response.ok,
         message: data.message
@@ -963,4 +968,78 @@ function updateOrderStatus(orderId, status) {
         console.error(error);
         alert("Could not update order status.");
     });
+}
+
+function showManageCustomers() {
+    let sections = [
+        "addProductSection",
+        "editProductSection",
+        "removeProductSection",
+        "manageOrdersSection",
+        "ordersSection"
+    ];
+
+    sections.forEach(id => {
+        let section = document.getElementById(id);
+
+        if (section != null) {
+            section.style.display = "none";
+        }
+    });
+
+    document.getElementById("manageCustomersSection").style.display = "block";
+
+    loadAdminCustomers();
+}
+
+
+function loadAdminCustomers() {
+    let customerList = document.getElementById("adminCustomers");
+
+    customerList.textContent = "Loading customers...";
+
+    fetch("/admin-customers")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Could not load customers");
+            }
+
+            return response.json();
+        })
+        .then(customers => {
+            customerList.textContent = "";
+
+            if (customers.length === 0) {
+                customerList.textContent = "No registered customers yet.";
+                return;
+            }
+
+            customers.forEach(customer => {
+                let section = document.createElement("div");
+
+                let heading = document.createElement("h3");
+                heading.textContent = customer.name;
+                section.appendChild(heading);
+
+                let id = document.createElement("p");
+                id.textContent = "Customer ID: " + customer.user_id;
+                section.appendChild(id);
+
+                let email = document.createElement("p");
+                email.textContent = "Email: " + customer.email;
+                section.appendChild(email);
+
+                let phone = document.createElement("p");
+                phone.textContent = "Phone: " + (customer.phone || "Not provided");
+                section.appendChild(phone);
+
+                section.appendChild(document.createElement("hr"));
+
+                customerList.appendChild(section);
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            customerList.textContent = "Could not load customer information.";
+        });
 }

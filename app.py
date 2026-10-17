@@ -433,5 +433,23 @@ def update_order_status():
 
     return jsonify({"message": "Order status updated successfully!"})
 
+@app.route("/admin-customers")
+def admin_customers():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    connection = sqlite3.connect(database)
+    connection.row_factory = sqlite3.Row
+
+    customers = connection.execute("""
+        SELECT user_id, name, email, phone
+        FROM Customers
+        ORDER BY user_id DESC
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([dict(customer) for customer in customers])
+
 if __name__ == "__main__":
     app.run(debug=True)

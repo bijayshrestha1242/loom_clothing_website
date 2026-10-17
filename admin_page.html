@@ -39,6 +39,7 @@
             <button onclick="showEditProduct()">Edit Product</button>
             <button onclick="showRemoveProduct()">Remove Product</button>
             <button onclick="showManageOrders()">Manage Orders</button>
+            <button onclick="showManageCustomers()">Manage Customers</button>
 
             <section id="addProductSection" style="display: none;">
                 <h3>Add New Product</h3>
@@ -99,6 +100,14 @@
                 <div id="adminOrders">
                  <p>Click Manage Orders to view customer orders.</p>
                 </div>
+        </section>
+
+        <section id="manageCustomersSection" style="display: none;">
+            <h2>Manage Customers</h2>
+            <button onclick="loadAdminCustomers()">Refresh Customers</button>
+            <div id="adminCustomers">
+             <p>Customer information will appear here.</p>
+             </div>
         </section>
 
         <section>
