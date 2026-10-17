@@ -1039,7 +1039,8 @@ function hideAdminSections() {
         "editProductSection",
         "manageOrdersSection",
         "manageCustomersSection",
-        "ordersSection"
+        "ordersSection",
+        "manageDiscountsSection"
     ];
 
     sections.forEach(id => {
@@ -1050,3 +1051,62 @@ function hideAdminSections() {
         }
     });
 }
+
+function showManageDiscounts() {
+    hideAdminSections();
+
+    document.getElementById("manageDiscountsSection").style.display = "block";
+
+    loadAdminDiscounts();
+}
+
+
+function loadAdminDiscounts() {
+    fetch("/admin-discounts")
+        .then(response => response.json())
+        .then(discounts => {
+            let container = document.getElementById("adminDiscounts");
+            container.textContent = "";
+
+            for (let code in discounts) {
+                let discount = discounts[code];
+
+                let item = document.createElement("p");
+
+                item.textContent =
+                    code + " - " +
+                    discount.percentage + "% off - " +
+                    (discount.active ? "Active" : "Inactive");
+
+                container.appendChild(item);
+            }
+        })
+        .catch(error => console.error(error));
+}
+
+document.getElementById("addDiscountForm")?.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    let code = document.getElementById("discountCode").value;
+    let percentage = document.getElementById("discountPercentage").value;
+
+    fetch("/add-discount", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            code: code,
+            percentage: percentage
+        })
+    })
+
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+
+        loadAdminDiscounts();
+    })
+
+    .catch(error => console.error(error));
+});

@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, send_from_directory, request, session, redirect
-import sqlite3
+import sqlite3, json
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -8,6 +8,16 @@ app = Flask(__name__)
 app.secret_key = "loom-is-the-best"
 
 database = Path(__file__).with_name("Loom.db")
+
+discount_file = Path(__file__).with_name("discounts.json")
+
+def load_discounts():
+    with open(discount_file, "r") as file:
+        return json.load(file)
+
+def save_discounts(discounts):
+    with open(discount_file, "w") as file:
+        json.dump(discounts, file, indent=4)
 
 @app.route("/")
 def home():
@@ -450,6 +460,62 @@ def admin_customers():
     connection.close()
 
     return jsonify([dict(customer) for customer in customers])
+
+@app.route("/check-discount", methods=["POST"])
+def check_discount():
+    details = request.get_json()
+    code = details.get("code", "").strip().upper()
+
+    discounts = load_discounts()
+
+    if code in discounts and discounts[code]["active"]:
+        return jsonify({
+            "valid": True,
+            "percentage": discounts[code]["percentage"]
+        })
+
+    return jsonify({
+        "valid": False,
+        "message": "Invalid or inactive discount code"
+    })
+
+@app.route("/admin-discounts", methods=["GET"])
+def admin_discounts():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    return jsonify(load_discounts())
+
+
+@app.route("/add-discount", methods=["POST"])
+def add_discount():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    details = request.get_json()
+    code = str(details.get("code", "")).strip().upper()
+
+    try:
+        percentage = int(details.get("percentage", 0))
+    except (ValueError, TypeError):
+        return jsonify({"message": "Enter a valid percentage"}), 400
+
+    if not code or not 1 <= percentage <= 100:
+        return jsonify({"message": "Enter a code and a percentage between 1 and 100"}), 400
+
+    discounts = load_discounts()
+
+    if code in discounts:
+        return jsonify({"message": "Discount code already exists"}), 400
+
+    discounts[code] = {
+        "percentage": percentage,
+        "active": True
+    }
+
+    save_discounts(discounts)
+
+    return jsonify({"message": "Discount added successfully"})
 
 if __name__ == "__main__":
     app.run(debug=True)

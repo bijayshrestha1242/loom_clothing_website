@@ -1,0 +1,10 @@
+{
+    "ILOVELOOM": {
+        "percentage": 10,
+        "active": true
+    },
+    "ENDOFSEMESTER": {
+        "percentage": 15,
+        "active": true
+    }
+}
