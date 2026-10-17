@@ -35,9 +35,10 @@
             <h2>Product Management</h2>
             <p>Here you can add, edit, or remove products from the store.</p>
 
-            <button class="btn" onclick="showAddProduct()">Add Product</button>
-            <button class="btn" onclick="showEditProduct()">Edit Product</button>
-            <button class="btn" onclick="showRemoveProduct()">Remove Product</button>
+            <button onclick="showAddProduct()">Add Product</button>
+            <button onclick="showEditProduct()">Edit Product</button>
+            <button onclick="showRemoveProduct()">Remove Product</button>
+            <button onclick="showManageOrders()">Manage Orders</button>
 
             <section id="addProductSection" style="display: none;">
                 <h3>Add New Product</h3>
@@ -92,7 +93,13 @@
                 </form>
             </section>
 
-        
+            <section id="manageOrdersSection" style="display: none;">
+                <h2>Manage Customer Orders</h2>
+                <button onclick="loadAdminOrders()">Refresh Orders</button>
+                <div id="adminOrders">
+                 <p>Click Manage Orders to view customer orders.</p>
+                </div>
+        </section>
 
         <div class="admin-section">
             <h2>Order Management</h2>
