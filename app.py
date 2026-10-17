@@ -2,6 +2,7 @@ from flask import Flask, jsonify, send_from_directory, request, session, redirec
 import sqlite3
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "loom-is-the-best"
@@ -219,6 +220,107 @@ def admin_login():
 def admin_logout():
     session.clear()
     return jsonify({"message": "Admin logout successful"})
+
+
+@app.route("/place-order", methods=["POST"])
+def save_order():
+    if "user_id" not in session:
+        return jsonify({"message": "Please log in before placing an order"}), 401
+
+    details = request.get_json()
+    cart = details.get("cart", [])
+    delivery = details.get("delivery")
+    address = details.get("address", "").strip()
+    discount_code = details.get("discount_code", "").strip()
+
+    if not cart:
+        return jsonify({"message": "Your cart is empty"}), 400
+
+    if delivery not in ["delivery", "pickup"]:
+        return jsonify({"message": "Please select a delivery method"}), 400
+
+    if delivery == "delivery" and not address:
+        return jsonify({"message": "Please enter your delivery address"}), 400
+
+    connection = sqlite3.connect(database)
+    connection.row_factory = sqlite3.Row
+
+    try:
+        order_items = []
+        subtotal = 0
+
+        for item in cart:
+            product = connection.execute(
+                "SELECT product_id, name, price FROM products WHERE name = ? AND status = 'active'",
+                (item["name"],)
+            ).fetchall()
+
+            if len(product) != 1:
+                return jsonify({
+                    "message": "A product in your cart is unavailable or has a duplicate name"
+                }), 400
+
+            price = round(float(product[0]["price"]), 2)
+            subtotal += price
+
+            order_items.append({
+                "product_id": product[0]["product_id"],
+                "price": price
+            })
+
+        subtotal = round(subtotal, 2)
+        discount_amount = round(subtotal * 0.10, 2) if discount_code == "ILOVELOOM" else 0
+        total = round(subtotal - discount_amount, 2)
+
+        cursor = connection.execute("""
+            INSERT INTO orders (user_id, order_date, status, subtotal, shipping_cost, total_amount)VALUES (?, ?, ?, ?, ?, ?)""", (
+            session["user_id"],
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Pending",
+            subtotal,
+            0,
+            total
+        ))
+
+        order_id = cursor.lastrowid
+
+        for item in order_items:
+            connection.execute("""
+                INSERT INTO order_items
+                (order_id, product_id, quantity, unit_price, subtotal)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                order_id,
+                item["product_id"],
+                1,
+                item["price"],
+                item["price"]
+            ))
+
+        connection.execute("""
+            INSERT INTO shipping
+            (order_id, shipping_method, shipping_status)
+            VALUES (?, ?, ?)
+        """, (
+            order_id,
+            delivery,
+            "Not shipped" if delivery == "delivery" else "Awaiting pickup"
+        ))
+
+        connection.commit()
+
+        return jsonify({
+            "message": "Order placed successfully!",
+            "order_id": order_id,
+            "total": total
+        })
+
+    except (sqlite3.Error, KeyError, TypeError, ValueError):
+        connection.rollback()
+        return jsonify({"message": "Could not save the order"}), 400
+
+    finally:
+        connection.close()
 
 if __name__ == "__main__":
     app.run(debug=True)

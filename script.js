@@ -170,13 +170,48 @@ function placeOrder() {
     }
 
     else {
+    let deliveryMethod = document.getElementById("delivery").checked
+        ? "delivery" : "pickup";
+
+    let order = {
+        cart: cart,
+        delivery: deliveryMethod,
+        address: address,
+        discount_code: document.getElementById("discountCode").value
+    };
+
+    fetch("/place-order", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(order)
+    })
+
+    .then(response => response.json().then(data => ({
+        ok: response.ok,
+        data: data
+    })))
+
+    .then(result => {
+        if (!result.ok) {
+            alert(result.data.message);
+            return;
+        }
+
         localStorage.setItem("lastOrder", JSON.stringify(cart));
-        localStorage.setItem("finalTotal", finalTotal);
+        localStorage.setItem("finalTotal", result.data.total);
+        localStorage.setItem("lastOrderId", result.data.order_id);
+
         localStorage.removeItem("cart");
+        cart = [];
 
         window.location.href = "confirmation.html";
-    }
-}
+    })
+
+    .catch(error => {
+        console.error(error);
+        alert("There was a problem saving your order.");
+    });
+}}
 
 function displayOrder(){
     let orderItems = document.getElementById("orderItems");
@@ -188,6 +223,12 @@ function displayOrder(){
 
     let lastOrder = JSON.parse(localStorage.getItem("lastOrder")) || [];
     let lastTotal = Number(localStorage.getItem("finalTotal"));
+    let orderNumber = document.getElementById("orderNumber");
+    let lastOrderId = localStorage.getItem("lastOrderId");
+
+    if (orderNumber != null && lastOrderId != null) {
+    orderNumber.textContent = "Order Number: #" + lastOrderId;
+    }
 
     for (let i = 0; i < lastOrder.length; i++) {
         let item = document.createElement("li");
