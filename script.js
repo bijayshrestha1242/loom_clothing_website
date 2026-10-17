@@ -242,26 +242,27 @@ function displayOrder(){
 }
 
 function showAddProduct() {
-    document.getElementById("manageCustomersSection").style.display = "none";
+    hideAdminSections();
     document.getElementById("addProductSection").style.display = "block";
 }
 
 function showEditProduct() {
-    document.getElementById("manageCustomersSection").style.display = "none";
+    hideAdminSections();
     document.getElementById("editProductSection").style.display = "block";
 }
 
 function showRemoveProduct() {
-    document.getElementById("manageCustomersSection").style.display = "none";
+    hideAdminSections();
     document.getElementById("removeProductSection").style.display = "block";
 }
 
 function showOrders() {
+    hideAdminSections();
+
     document.getElementById("ordersSection").style.display = "block";
 
     displayAdminOrders();
 }
-
 
 let addProductForm = document.getElementById("addProductForm");
 
@@ -829,8 +830,9 @@ if (orderHistory != null) {
 }
 
 function showManageOrders() {
+    hideAdminSections();
     document.getElementById("manageCustomersSection").style.display = "none";
-    
+
     let sections = [
         "addProductSection",
         "removeProductSection",
@@ -971,21 +973,7 @@ function updateOrderStatus(orderId, status) {
 }
 
 function showManageCustomers() {
-    let sections = [
-        "addProductSection",
-        "editProductSection",
-        "removeProductSection",
-        "manageOrdersSection",
-        "ordersSection"
-    ];
-
-    sections.forEach(id => {
-        let section = document.getElementById(id);
-
-        if (section != null) {
-            section.style.display = "none";
-        }
-    });
+    hideAdminSections();
 
     document.getElementById("manageCustomersSection").style.display = "block";
 
@@ -1042,4 +1030,23 @@ function loadAdminCustomers() {
             console.error(error);
             customerList.textContent = "Could not load customer information.";
         });
+}
+
+function hideAdminSections() {
+    let sections = [
+        "addProductSection",
+        "removeProductSection",
+        "editProductSection",
+        "manageOrdersSection",
+        "manageCustomersSection",
+        "ordersSection"
+    ];
+
+    sections.forEach(id => {
+        let section = document.getElementById(id);
+
+        if (section != null) {
+            section.style.display = "none";
+        }
+    });
 }
