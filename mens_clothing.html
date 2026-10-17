@@ -5,17 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Men's Clothing</title>
     <link rel="stylesheet" href="style.css">
+
+
 </head>
 
 <body>
 
     <header>
         <nav>
-            <h1>
-                <a href="homepage.html">Loom Clothing</a>
-            </h1>
+            <div class="logo">
+                                <a href="homepage.html">Loom Clothing</a>
+            </div>
 
-            <ul>
+            <ul class="nav-links">
                 <li><a href="homepage.html">Home</a></li>
                 <li><a href="womens_clothing.html">Women's Clothing</a></li>
                 <li><a href="order_history.html">My Orders</a></li>
@@ -23,6 +25,7 @@
                     <li><a href="login_html">Login</a></li>
                 </span>
             </ul>
+        </nav>
         </nav>
     </header>
 
@@ -33,20 +36,31 @@
             <P>Browse our collection of men's clothing and find the perfect outfit for any occasion.</P>
         </section>
 
-        <section>
-            <h3>Filter Products</h3>
+        <section class="product-grid">
+<!-- Product cards for men's clothing items -->
+            <div class="product-card">
+                <img src="https://cdn.pixabay.com/photo/2024/02/06/18/10/ai-generated-8557635_1280.jpg" alt="Men's Shirt">
+                <h3>Classic Shirt</h3>
+                <p>A timeless addition to any wardrobe.</p>
+                <P>$49.99</P>
+                <button class="btn" onclick="addToCart('Classic Shirt', 49.99)">Add to Cart</button>
+            </div>
 
-            <label for="filterType">Filter By:</label>
-            <select id="filterType" onchange="showFilterOptions()">
-                <option value="none">Select Filter</option>
-                <option value="price">Price</option>
-                <option value="size">Size</option>
-                <option value="colour">Colour</option>
-                <option value="availability">Availability</option>
-            </select>
+            <div class="product-card">
+                <img src="https://img.ltwebstatic.com/images3_pi/2024/08/26/f5/172463751944e11ab397b194083cc51d2f45513e30_thumbnail_900x.webp" alt="Men's Jeans">
+                <h3>Baggy Jeans</h3>
+                <p>A staple baggy pair of jeans to go with everything.</p>
+                <P>$79.99</P>
+                <button class="btn" onclick="addToCart('Baggy Jeans', 79.99)">Add to Cart</button>
+            </div>
 
-            <select id="filterOption" onchange="filterProducts()" style="display: none;">
-            </select>
+            <div class="product-card">
+                <img src="https://tse4.mm.bing.net/th/id/OIP.rBH_0Q964thn-OaZTUK7qQHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Men's Jumper">
+                <h3>Cozy Jumper</h3>
+                <p>A warm and comfortable jumper perfect for any weather.</p>
+                <P>$99.99</P>
+                <button onclick="addToCart('Cozy Jumper', 99.99)">Add to Cart</button>
+            </div>
         </section>
 
         <section class="products" id="productList" data-category="Mens"></section>
@@ -55,11 +69,13 @@
             <h2>Your Cart</h2>
             <ul id="cartItems"></ul>
             <p id="cartTotal">Total: $0.00</p>
-            <button onclick="goToCheckout()">Checkout</button>
+            <button class="btn" onclick="goToCheckout()">Checkout</button>
         </section>
 
     </main>
-
+ <footer>
+    <p>© 2024 Loom Clothing</p>
+</footer>
     <script src="script.js"></script>
 </body>
 </html>
