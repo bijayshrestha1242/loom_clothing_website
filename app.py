@@ -54,6 +54,7 @@ def website_files(filename):
         "register.html",
         "admin_login.html",
         "login.html",
+        "order_history.html",
         "script.js",
         "style.css"
     ]
@@ -321,6 +322,43 @@ def save_order():
 
     finally:
         connection.close()
+
+@app.route("/my-orders")
+def my_orders():
+    if "user_id" not in session:
+        return jsonify({"message": "Please log in first"}), 401
+
+    connection = sqlite3.connect(database)
+    connection.row_factory = sqlite3.Row
+
+    orders = connection.execute("""
+        SELECT order_id, order_date, status, total_amount
+        FROM orders
+        WHERE user_id = ?
+        ORDER BY order_date DESC, order_id DESC
+    """, (session["user_id"],)).fetchall()
+
+    results = []
+
+    for order in orders:
+        items = connection.execute("""
+            SELECT p.name, oi.quantity, oi.unit_price, oi.subtotal
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.product_id
+            WHERE oi.order_id = ?
+        """, (order["order_id"],)).fetchall()
+
+        results.append({
+            "order_id": order["order_id"],
+            "date": order["order_date"],
+            "status": order["status"],
+            "total": order["total_amount"],
+            "items": [dict(item) for item in items]
+        })
+
+    connection.close()
+
+    return jsonify(results)
 
 if __name__ == "__main__":
     app.run(debug=True)

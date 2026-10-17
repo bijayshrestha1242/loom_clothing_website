@@ -750,3 +750,77 @@ function adminLogout() {
         window.location.href = "admin_login.html";
     });
 }
+
+let orderHistory = document.getElementById("orderHistory");
+
+if (orderHistory != null) {
+    fetch("/my-orders")
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = "login.html";
+                return null;
+            }
+
+            if (!response.ok) {
+                throw new Error("Could not load orders");
+            }
+
+            return response.json();
+        })
+
+        .then(orders => {
+            if (orders == null) {
+                return;
+            }
+
+            orderHistory.textContent = "";
+
+            if (orders.length === 0) {
+                orderHistory.textContent = "You haven't placed any orders yet.";
+                return;
+            }
+
+            orders.forEach(order => {
+                let section = document.createElement("div");
+
+                let heading = document.createElement("h2");
+                heading.textContent = "Order #" + order.order_id;
+                section.appendChild(heading);
+
+                let date = document.createElement("p");
+                date.textContent = "Date: " + order.date;
+                section.appendChild(date);
+
+                let status = document.createElement("p");
+                status.textContent = "Status: " + order.status;
+                section.appendChild(status);
+
+                let itemsHeading = document.createElement("h3");
+                itemsHeading.textContent = "Products:";
+                section.appendChild(itemsHeading);
+
+                order.items.forEach(item => {
+                    let product = document.createElement("p");
+                    product.textContent =
+                        item.name + " x " + item.quantity +
+                        " - $" + Number(item.subtotal).toFixed(2);
+
+                    section.appendChild(product);
+                });
+
+                let total = document.createElement("p");
+                total.textContent =
+                    "Total: $" + Number(order.total).toFixed(2);
+
+                section.appendChild(total);
+
+                section.appendChild(document.createElement("hr"));
+                orderHistory.appendChild(section);
+            });
+        })
+        
+        .catch(error => {
+            console.error(error);
+            orderHistory.textContent = "Could not load your orders.";
+        });
+}
