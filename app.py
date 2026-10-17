@@ -360,5 +360,78 @@ def my_orders():
 
     return jsonify(results)
 
+@app.route("/admin-orders")
+def admin_orders():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    connection = sqlite3.connect(database)
+    connection.row_factory = sqlite3.Row
+
+    orders = connection.execute("""
+        SELECT
+            o.order_id,
+            o.order_date,
+            o.status,
+            o.total_amount,
+            c.name AS customer_name,
+            s.shipping_method
+        FROM orders o
+        JOIN Customers c ON o.user_id = c.user_id
+        LEFT JOIN shipping s ON o.order_id = s.order_id
+        ORDER BY o.order_date DESC, o.order_id DESC
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([dict(order) for order in orders])
+
+
+@app.route("/update-order-status", methods=["POST"])
+def update_order_status():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    details = request.get_json(silent=True) or {}
+    order_id = details.get("order_id")
+    status = details.get("status")
+
+    if type(order_id) is not int or order_id <= 0:
+        return jsonify({"message": "Invalid order number"}), 400
+
+    connection = sqlite3.connect(database)
+
+    order = connection.execute("""
+        SELECT o.order_id, s.shipping_method
+        FROM orders o
+        LEFT JOIN shipping s ON o.order_id = s.order_id
+        WHERE o.order_id = ?
+        """, (order_id,)).fetchone()
+
+    if order is None:
+        connection.close()
+        return jsonify({"message": "Order not found"}), 404
+
+    delivery_method = order[1]
+
+    if delivery_method == "pickup":
+        allowed_statuses = ["Pending", "Processing", "Ready for Pickup", "Collected", "Cancelled"]
+    else:
+        allowed_statuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"]
+
+    if status not in allowed_statuses:
+        connection.close()
+        return jsonify({"message": "Invalid order status"}), 400
+
+    connection.execute(
+        "UPDATE orders SET status = ? WHERE order_id = ?",
+        (status, order_id)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return jsonify({"message": "Order status updated successfully!"})
+
 if __name__ == "__main__":
     app.run(debug=True)
