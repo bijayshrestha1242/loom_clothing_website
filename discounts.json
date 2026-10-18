@@ -5,6 +5,6 @@
     },
     "ENDOFSEMESTER": {
         "percentage": 15,
-        "active": true
+        "active": false
     }
 }

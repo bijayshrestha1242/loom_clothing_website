@@ -11,6 +11,8 @@ database = Path(__file__).with_name("Loom.db")
 
 discount_file = Path(__file__).with_name("discounts.json")
 
+reviews_file = Path(__file__).with_name("reviews.json")
+
 def load_discounts():
     with open(discount_file, "r") as file:
         return json.load(file)
@@ -18,6 +20,14 @@ def load_discounts():
 def save_discounts(discounts):
     with open(discount_file, "w") as file:
         json.dump(discounts, file, indent=4)
+
+def load_reviews():
+    with open(reviews_file, "r") as file:
+        return json.load(file)
+
+def save_reviews(reviews):
+    with open(reviews_file, "w") as file:
+        json.dump(reviews, file, indent=4)
 
 @app.route("/")
 def home():
@@ -565,6 +575,64 @@ def remove_discount():
     save_discounts(discounts)
 
     return jsonify({"message": "Discount removed successfully"})
+
+@app.route("/product-reviews/<int:product_id>")
+def product_reviews(product_id):
+    data = load_reviews()
+
+    product_reviews = [
+        review for review in data["reviews"]
+        if review["product_id"] == product_id
+    ]
+
+    return jsonify(product_reviews)
+
+@app.route("/submit-review", methods=["POST"])
+def submit_review():
+    if "user_id" not in session:
+        return jsonify({"message": "Please log in to leave a review"}), 401
+
+    details = request.get_json(silent=True) or {}
+
+    try:
+        product_id = int(details.get("product_id"))
+        rating = int(details.get("rating"))
+    except (ValueError, TypeError):
+        return jsonify({"message": "Invalid product or rating"}), 400
+
+    comment = str(details.get("comment", "")).strip()
+
+    if rating < 1 or rating > 5:
+        return jsonify({"message": "Rating must be between 1 and 5"}), 400
+
+    if not comment or len(comment) > 500:
+        return jsonify({"message": "Review must be between 1 and 500 characters"}), 400
+
+    connection = sqlite3.connect(database)
+    product = connection.execute(
+        "SELECT product_id FROM products WHERE product_id = ?",
+        (product_id,)
+    ).fetchone()
+
+    connection.close()
+
+    if product is None:
+        return jsonify({"message": "Product not found"}), 404
+
+    data = load_reviews()
+
+    review = {
+        "product_id": product_id,
+        "user_id": session["user_id"],
+        "rating": rating,
+        "comment": comment,
+        "created_at": datetime.now().strftime("%Y-%m-%d")
+    }
+
+    data["reviews"].append(review)
+    save_reviews(data)
+
+    return jsonify({"message": "Review submitted successfully"})
 
 if __name__ == "__main__":
     app.run(debug=True)
