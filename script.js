@@ -106,18 +106,38 @@ function showPickup() {
 }
 
 function applyDiscount() {
-    let discountCode = document.getElementById("discountCode").value;
+    let code = document.getElementById("discountCode").value.trim().toUpperCase();
     let discountMessage = document.getElementById("discountMessage");
 
-    if (discountCode === "ILOVELOOM") {
-        discount = 0.10; // 10% discount
-        discountMessage.textContent = "Discount code applied! Enjoy 10% off.";
-    } else {
-        discount = 0;
-        discountMessage.textContent = "Invalid Code. Please try again.";
-    }
-
+    discount = 0;
     displayCart();
+
+    fetch("/check-discount", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.valid) {
+            discount = data.percentage / 100;
+            discountMessage.textContent =
+                "Discount applied! Enjoy " + data.percentage + "% off.";
+        } else {
+            discount = 0;
+            discountMessage.textContent = "Invalid or inactive discount code.";
+        }
+
+        displayCart();
+    })
+    .catch(error => {
+        console.error(error);
+        discount = 0;
+        discountMessage.textContent = "Could not check discount code.";
+        displayCart();
+    });
 }
 
 function showCardDetails() {
@@ -1060,10 +1080,15 @@ function showManageDiscounts() {
     loadAdminDiscounts();
 }
 
-
 function loadAdminDiscounts() {
     fetch("/admin-discounts")
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Could not load discounts");
+            }
+
+            return response.json();
+        })
         .then(discounts => {
             let container = document.getElementById("adminDiscounts");
             container.textContent = "";
@@ -1071,17 +1096,39 @@ function loadAdminDiscounts() {
             for (let code in discounts) {
                 let discount = discounts[code];
 
-                let item = document.createElement("p");
+                let item = document.createElement("div");
 
-                item.textContent =
+                let description = document.createElement("p");
+                description.textContent =
                     code + " - " +
                     discount.percentage + "% off - " +
                     (discount.active ? "Active" : "Inactive");
 
+                let toggleButton = document.createElement("button");
+                toggleButton.textContent = discount.active ? "Disable" : "Enable";
+                toggleButton.onclick = function() {
+                    toggleDiscount(code);
+                };
+
+                let removeButton = document.createElement("button");
+                removeButton.textContent = "Remove";
+                removeButton.onclick = function() {
+                    removeDiscount(code);
+                };
+
+                item.appendChild(description);
+                item.appendChild(toggleButton);
+                item.appendChild(removeButton);
+                item.appendChild(document.createElement("hr"));
+
                 container.appendChild(item);
             }
         })
-        .catch(error => console.error(error));
+        .catch(error => {
+            console.error(error);
+            document.getElementById("adminDiscounts").textContent =
+                "Could not load discounts.";
+        });
 }
 
 document.getElementById("addDiscountForm")?.addEventListener("submit", function(event) {
@@ -1110,3 +1157,40 @@ document.getElementById("addDiscountForm")?.addEventListener("submit", function(
 
     .catch(error => console.error(error));
 });
+
+function toggleDiscount(code) {
+    fetch("/toggle-discount", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadAdminDiscounts();
+    })
+    .catch(error => console.error(error));
+}
+
+
+function removeDiscount(code) {
+    if (!confirm("Are you sure you want to remove " + code + "?")) {
+        return;
+    }
+
+    fetch("/remove-discount", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadAdminDiscounts();
+    })
+    .catch(error => console.error(error));
+}

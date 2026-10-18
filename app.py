@@ -279,11 +279,23 @@ def save_order():
                 "price": price
             })
 
-        subtotal = round(subtotal, 2)
-        discount_amount = round(subtotal * 0.10, 2) if discount_code == "ILOVELOOM" else 0
-        total = round(subtotal - discount_amount, 2)
+            subtotal = round(subtotal, 2)
 
-        cursor = connection.execute("""
+            discounts = load_discounts()
+            discount_code = discount_code.upper()
+
+            discount_percentage = 0
+
+            if discount_code:
+                if discount_code not in discounts or not discounts[discount_code]["active"]:
+                    return jsonify({"message": "Invalid or inactive discount code"}), 400
+
+            discount_percentage = discounts[discount_code]["percentage"]
+
+            discount_amount = round(subtotal * discount_percentage / 100, 2)
+            total = round(subtotal - discount_amount, 2)
+            
+            cursor = connection.execute("""
             INSERT INTO orders (user_id, order_date, status, subtotal, shipping_cost, total_amount)VALUES (?, ?, ?, ?, ?, ?)""", (
             session["user_id"],
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -516,6 +528,43 @@ def add_discount():
     save_discounts(discounts)
 
     return jsonify({"message": "Discount added successfully"})
+
+@app.route("/toggle-discount", methods=["POST"])
+def toggle_discount():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    details = request.get_json() or {}
+    code = str(details.get("code", "")).strip().upper()
+
+    discounts = load_discounts()
+
+    if code not in discounts:
+        return jsonify({"message": "Discount not found"}), 404
+
+    discounts[code]["active"] = not discounts[code]["active"]
+    save_discounts(discounts)
+
+    return jsonify({"message": "Discount status updated"})
+
+
+@app.route("/remove-discount", methods=["POST"])
+def remove_discount():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    details = request.get_json() or {}
+    code = str(details.get("code", "")).strip().upper()
+
+    discounts = load_discounts()
+
+    if code not in discounts:
+        return jsonify({"message": "Discount not found"}), 404
+
+    del discounts[code]
+    save_discounts(discounts)
+
+    return jsonify({"message": "Discount removed successfully"})
 
 if __name__ == "__main__":
     app.run(debug=True)
