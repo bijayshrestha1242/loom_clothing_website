@@ -39,6 +39,8 @@
             <button onclick="showEditProduct()">Edit Product</button>
             <button onclick="showRemoveProduct()">Remove Product</button>
             <button onclick="showManageOrders()">Manage Orders</button>
+            <button onclick="showManageCustomers()">Manage Customers</button>
+            <button onclick="showManageDiscounts()">Manage Discounts</button>
 
             <section id="addProductSection" style="display: none;">
                 <h3>Add New Product</h3>
@@ -101,7 +103,35 @@
                 </div>
         </section>
 
-        <div class="admin-section">
+        <section id="manageCustomersSection" style="display: none;">
+            <h2>Manage Customers</h2>
+            <button onclick="loadAdminCustomers()">Refresh Customers</button>
+            <div id="adminCustomers">
+             <p>Customer information will appear here.</p>
+             </div>
+        </section>
+
+        <section id="manageDiscountsSection" style="display: none;">
+            <h2>Manage Discounts</h2>
+
+             <h3>Add Discount</h3>
+
+            <form id="addDiscountForm">
+            <label for="discountCode">Discount Code:</label>
+            <input type="text" id="discountCode" required>
+
+            <label for="discountPercentage">Percentage:</label>
+            <input type="number" id="discountPercentage" min="1" max="100" required>
+
+            <button type="submit">Add Discount</button>
+            </form>
+
+            <h3>Existing Discounts</h3>
+            <button onclick="loadAdminDiscounts()">Refresh Discounts</button>
+            <div id="adminDiscounts"></div>
+        </section>
+
+        <section>
             <h2>Order Management</h2>
             <p>View and manage customer orders.</p>
             <button class="btn" onclick="showOrders()">View Orders</button>

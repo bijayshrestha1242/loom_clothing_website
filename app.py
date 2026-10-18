@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, send_from_directory, request, session, redirect
-import sqlite3
+import sqlite3, json
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -8,6 +8,26 @@ app = Flask(__name__)
 app.secret_key = "loom-is-the-best"
 
 database = Path(__file__).with_name("Loom.db")
+
+discount_file = Path(__file__).with_name("discounts.json")
+
+reviews_file = Path(__file__).with_name("reviews.json")
+
+def load_discounts():
+    with open(discount_file, "r") as file:
+        return json.load(file)
+
+def save_discounts(discounts):
+    with open(discount_file, "w") as file:
+        json.dump(discounts, file, indent=4)
+
+def load_reviews():
+    with open(reviews_file, "r") as file:
+        return json.load(file)
+
+def save_reviews(reviews):
+    with open(reviews_file, "w") as file:
+        json.dump(reviews, file, indent=4)
 
 @app.route("/")
 def home():
@@ -269,11 +289,23 @@ def save_order():
                 "price": price
             })
 
-        subtotal = round(subtotal, 2)
-        discount_amount = round(subtotal * 0.10, 2) if discount_code == "ILOVELOOM" else 0
-        total = round(subtotal - discount_amount, 2)
+            subtotal = round(subtotal, 2)
 
-        cursor = connection.execute("""
+            discounts = load_discounts()
+            discount_code = discount_code.upper()
+
+            discount_percentage = 0
+
+            if discount_code:
+                if discount_code not in discounts or not discounts[discount_code]["active"]:
+                    return jsonify({"message": "Invalid or inactive discount code"}), 400
+
+            discount_percentage = discounts[discount_code]["percentage"]
+
+            discount_amount = round(subtotal * discount_percentage / 100, 2)
+            total = round(subtotal - discount_amount, 2)
+            
+            cursor = connection.execute("""
             INSERT INTO orders (user_id, order_date, status, subtotal, shipping_cost, total_amount)VALUES (?, ?, ?, ?, ?, ?)""", (
             session["user_id"],
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -432,6 +464,175 @@ def update_order_status():
     connection.close()
 
     return jsonify({"message": "Order status updated successfully!"})
+
+@app.route("/admin-customers")
+def admin_customers():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    connection = sqlite3.connect(database)
+    connection.row_factory = sqlite3.Row
+
+    customers = connection.execute("""
+        SELECT user_id, name, email, phone
+        FROM Customers
+        ORDER BY user_id DESC
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([dict(customer) for customer in customers])
+
+@app.route("/check-discount", methods=["POST"])
+def check_discount():
+    details = request.get_json()
+    code = details.get("code", "").strip().upper()
+
+    discounts = load_discounts()
+
+    if code in discounts and discounts[code]["active"]:
+        return jsonify({
+            "valid": True,
+            "percentage": discounts[code]["percentage"]
+        })
+
+    return jsonify({
+        "valid": False,
+        "message": "Invalid or inactive discount code"
+    })
+
+@app.route("/admin-discounts", methods=["GET"])
+def admin_discounts():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    return jsonify(load_discounts())
+
+
+@app.route("/add-discount", methods=["POST"])
+def add_discount():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    details = request.get_json()
+    code = str(details.get("code", "")).strip().upper()
+
+    try:
+        percentage = int(details.get("percentage", 0))
+    except (ValueError, TypeError):
+        return jsonify({"message": "Enter a valid percentage"}), 400
+
+    if not code or not 1 <= percentage <= 100:
+        return jsonify({"message": "Enter a code and a percentage between 1 and 100"}), 400
+
+    discounts = load_discounts()
+
+    if code in discounts:
+        return jsonify({"message": "Discount code already exists"}), 400
+
+    discounts[code] = {
+        "percentage": percentage,
+        "active": True
+    }
+
+    save_discounts(discounts)
+
+    return jsonify({"message": "Discount added successfully"})
+
+@app.route("/toggle-discount", methods=["POST"])
+def toggle_discount():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    details = request.get_json() or {}
+    code = str(details.get("code", "")).strip().upper()
+
+    discounts = load_discounts()
+
+    if code not in discounts:
+        return jsonify({"message": "Discount not found"}), 404
+
+    discounts[code]["active"] = not discounts[code]["active"]
+    save_discounts(discounts)
+
+    return jsonify({"message": "Discount status updated"})
+
+
+@app.route("/remove-discount", methods=["POST"])
+def remove_discount():
+    if "admin_id" not in session:
+        return jsonify({"message": "Admin login required"}), 403
+
+    details = request.get_json() or {}
+    code = str(details.get("code", "")).strip().upper()
+
+    discounts = load_discounts()
+
+    if code not in discounts:
+        return jsonify({"message": "Discount not found"}), 404
+
+    del discounts[code]
+    save_discounts(discounts)
+
+    return jsonify({"message": "Discount removed successfully"})
+
+@app.route("/product-reviews/<int:product_id>")
+def product_reviews(product_id):
+    data = load_reviews()
+
+    product_reviews = [
+        review for review in data["reviews"]
+        if review["product_id"] == product_id
+    ]
+
+    return jsonify(product_reviews)
+
+@app.route("/submit-review", methods=["POST"])
+def submit_review():
+    if "user_id" not in session:
+        return jsonify({"message": "Please log in to leave a review"}), 401
+
+    details = request.get_json(silent=True) or {}
+
+    try:
+        product_id = int(details.get("product_id"))
+        rating = int(details.get("rating"))
+    except (ValueError, TypeError):
+        return jsonify({"message": "Invalid product or rating"}), 400
+
+    comment = str(details.get("comment", "")).strip()
+
+    if rating < 1 or rating > 5:
+        return jsonify({"message": "Rating must be between 1 and 5"}), 400
+
+    if not comment or len(comment) > 500:
+        return jsonify({"message": "Review must be between 1 and 500 characters"}), 400
+
+    connection = sqlite3.connect(database)
+    product = connection.execute(
+        "SELECT product_id FROM products WHERE product_id = ?",
+        (product_id,)
+    ).fetchone()
+
+    connection.close()
+
+    if product is None:
+        return jsonify({"message": "Product not found"}), 404
+
+    data = load_reviews()
+
+    review = {
+        "product_id": product_id,
+        "user_id": session["user_id"],
+        "rating": rating,
+        "comment": comment,
+        "created_at": datetime.now().strftime("%Y-%m-%d")
+    }
+
+    data["reviews"].append(review)
+    save_reviews(data)
+
+    return jsonify({"message": "Review submitted successfully"})
 
 if __name__ == "__main__":
     app.run(debug=True)
