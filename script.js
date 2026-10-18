@@ -197,7 +197,7 @@ function placeOrder() {
         cart: cart,
         delivery: deliveryMethod,
         address: address,
-        discount_code: document.getElementById("discountCode").value
+        discount_code: document.getElementById("discountCode").value.trim().toUpperCase()
     };
 
     fetch("/place-order", {
@@ -609,12 +609,31 @@ function loadProducts() {
                 item.appendChild(price);
                 item.appendChild(button);
 
+                let reviewButton = document.createElement("button");
+                reviewButton.textContent = "Reviews";
+
+                let reviewSection = document.createElement("div");
+                reviewSection.style.display = "none";
+
+                reviewButton.onclick = function() {
+                if (reviewSection.style.display === "none") {
+                    reviewSection.style.display = "block";
+                    loadProductReviews(product.product_id, reviewSection);
+                } else {
+                    reviewSection.style.display = "none";
+                }
+            };
+
+                item.appendChild(reviewButton);
+                item.appendChild(reviewSection);
+
                 productList.appendChild(item);
 
                 order++;
             }
         }
     })
+
     .catch(error => {console.error("Error loading products:", error);});
 }
 
@@ -1193,4 +1212,101 @@ function removeDiscount(code) {
         loadAdminDiscounts();
     })
     .catch(error => console.error(error));
+}
+
+function loadProductReviews(productId, container) {
+    container.textContent = "Loading reviews...";
+
+    fetch("/product-reviews/" + productId)
+    .then(response => response.json())
+    .then(reviews => {
+        container.textContent = "";
+
+        let heading = document.createElement("h4");
+        heading.textContent = "Customer Reviews";
+        container.appendChild(heading);
+
+        if (reviews.length === 0) {
+            let message = document.createElement("p");
+            message.textContent = "No reviews yet.";
+            container.appendChild(message);
+        }
+
+        reviews.forEach(review => {
+            let item = document.createElement("p");
+            item.textContent =
+                "★".repeat(review.rating) +
+                " - " + review.comment +
+                " (" + review.created_at + ")";
+
+            container.appendChild(item);
+        });
+
+        let form = document.createElement("form");
+
+        let rating = document.createElement("select");
+
+        for (let i = 1; i <= 5; i++) {
+            let option = document.createElement("option");
+            option.value = i;
+            option.textContent = i + " Star" + (i > 1 ? "s" : "");
+            rating.appendChild(option);
+        }
+
+        rating.value = "5";
+
+        let comment = document.createElement("textarea");
+        comment.placeholder = "Write your review...";
+        comment.maxLength = 500;
+        comment.required = true;
+
+        let submitButton = document.createElement("button");
+        submitButton.type = "submit";
+        submitButton.textContent = "Submit Review";
+
+        form.appendChild(rating);
+        form.appendChild(comment);
+        form.appendChild(submitButton);
+
+        form.onsubmit = function(event) {
+            event.preventDefault();
+            submitProductReview(productId, rating.value, comment.value, container);
+        };
+
+        container.appendChild(form);
+    })
+    .catch(error => {
+        console.error(error);
+        container.textContent = "Could not load reviews.";
+    });
+}
+
+function submitProductReview(productId, rating, comment, container) {
+    fetch("/submit-review", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            rating: Number(rating),
+            comment: comment
+        })
+    })
+    .then(async response => {
+        let data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Could not submit review");
+        }
+
+        return data;
+    })
+    .then(data => {
+        alert(data.message);
+        loadProductReviews(productId, container);
+    })
+    .catch(error => {
+        alert(error.message);
+    });
 }
