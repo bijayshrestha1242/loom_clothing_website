@@ -289,12 +289,19 @@ footer {
     color: white;
     text-align: center;
     padding: 15px;
+<<<<<<< HEAD
+    margin-top: auto;
+}
+
+/*  MOBILE RESPONSIVE*/
+=======
     margin-top: 40px;
 }
 
 /* 
    MOBILE RESPONSIVE
  */
+>>>>>>> javascript
 @media (max-width: 600px) {
 
     nav {
@@ -345,6 +352,8 @@ footer {
         padding: 10px;
     }
 }
+<<<<<<< HEAD
+=======
 /* LOGIN & REGISTRATION */
 .auth-page {
     min-height: 100vh;
@@ -419,3 +428,4 @@ footer {
     .auth-card { padding: 28px 22px; }
     .auth-card h1 { font-size: 26px; }
 }
+>>>>>>> javascript
