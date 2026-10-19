@@ -352,8 +352,7 @@ footer {
         padding: 10px;
     }
 }
-<<<<<<< HEAD
-=======
+
 /* LOGIN & REGISTRATION */
 .auth-page {
     min-height: 100vh;
@@ -428,4 +427,55 @@ footer {
     .auth-card { padding: 28px 22px; }
     .auth-card h1 { font-size: 26px; }
 }
->>>>>>> javascript
+/* ADMIN LOGIN */
+.admin-login {
+    max-width: 420px;
+    margin: 60px auto;
+    padding: 25px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.admin-login h1 {
+    margin-bottom: 10px;
+}
+
+.admin-login p {
+    margin-bottom: 20px;
+}
+
+.admin-login label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.admin-login input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.admin-login button {
+    width: 100%;
+    padding: 10px;
+    background: #222;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.admin-login button:hover {
+    background: #444;
+}
+
+@media (max-width: 600px) {
+    .admin-login {
+        margin: 30px 15px;
+    }
+}
