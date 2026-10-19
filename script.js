@@ -75,18 +75,38 @@ function showPickup() {
 }
 
 function applyDiscount() {
-    let discountCode = document.getElementById("discountCode").value;
+    let code = document.getElementById("discountCode").value.trim().toUpperCase();
     let discountMessage = document.getElementById("discountMessage");
 
-    if (discountCode === "ILOVELOOM") {
-        discount = 0.10; // 10% discount
-        discountMessage.textContent = "Discount code applied! Enjoy 10% off.";
-    } else {
-        discount = 0;
-        discountMessage.textContent = "Invalid Code. Please try again.";
-    }
-
+    discount = 0;
     displayCart();
+
+    fetch("/check-discount", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.valid) {
+            discount = data.percentage / 100;
+            discountMessage.textContent =
+                "Discount applied! Enjoy " + data.percentage + "% off.";
+        } else {
+            discount = 0;
+            discountMessage.textContent = "Invalid or inactive discount code.";
+        }
+
+        displayCart();
+    })
+    .catch(error => {
+        console.error(error);
+        discount = 0;
+        discountMessage.textContent = "Could not check discount code.";
+        displayCart();
+    });
 }
 
 function showCardDetails() {
@@ -139,13 +159,48 @@ function placeOrder() {
     }
 
     else {
+    let deliveryMethod = document.getElementById("delivery").checked
+        ? "delivery" : "pickup";
+
+    let order = {
+        cart: cart,
+        delivery: deliveryMethod,
+        address: address,
+        discount_code: document.getElementById("discountCode").value.trim().toUpperCase()
+    };
+
+    fetch("/place-order", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(order)
+    })
+
+    .then(response => response.json().then(data => ({
+        ok: response.ok,
+        data: data
+    })))
+
+    .then(result => {
+        if (!result.ok) {
+            alert(result.data.message);
+            return;
+        }
+
         localStorage.setItem("lastOrder", JSON.stringify(cart));
-        localStorage.setItem("finalTotal", finalTotal);
+        localStorage.setItem("finalTotal", result.data.total);
+        localStorage.setItem("lastOrderId", result.data.order_id);
+
         localStorage.removeItem("cart");
+        cart = [];
 
         window.location.href = "confirmation.html";
-    }
-}
+    })
+
+    .catch(error => {
+        console.error(error);
+        alert("There was a problem saving your order.");
+    });
+}}
 
 function displayOrder(){
     let orderItems = document.getElementById("orderItems");
@@ -157,6 +212,12 @@ function displayOrder(){
 
     let lastOrder = JSON.parse(localStorage.getItem("lastOrder")) || [];
     let lastTotal = Number(localStorage.getItem("finalTotal"));
+    let orderNumber = document.getElementById("orderNumber");
+    let lastOrderId = localStorage.getItem("lastOrderId");
+
+    if (orderNumber != null && lastOrderId != null) {
+    orderNumber.textContent = "Order Number: #" + lastOrderId;
+    }
 
     for (let i = 0; i < lastOrder.length; i++) {
         let item = document.createElement("li");
@@ -170,18 +231,23 @@ function displayOrder(){
 }
 
 function showAddProduct() {
+    hideAdminSections();
     document.getElementById("addProductSection").style.display = "block";
 }
 
 function showEditProduct() {
+    hideAdminSections();
     document.getElementById("editProductSection").style.display = "block";
 }
 
 function showRemoveProduct() {
+    hideAdminSections();
     document.getElementById("removeProductSection").style.display = "block";
 }
 
 function showOrders() {
+    hideAdminSections();
+
     document.getElementById("ordersSection").style.display = "block";
 
     displayAdminOrders();
@@ -287,3 +353,899 @@ function displayAdminOrders() {
 
 displayCart();
 displayOrder();
+
+function showFilterOptions() {
+    let filterType = document.getElementById("filterType").value;
+    let filterOption = document.getElementById("filterOption");
+
+    filterOption.innerHTML = "";
+
+    if (filterType === "none") {
+        filterOption.style.display = "none";
+    }
+
+    else {
+        filterOption.style.display = "inline";
+
+        if (filterType === "price") {
+            filterOption.innerHTML = `
+            <option value="default">Default Order</option>
+            <option value="ascending">Price: Low to High</option>
+            <option value="descending">Price: High to Low</option>
+            `;
+        }
+    
+    
+        else if (filterType === "size") {
+        filterOption.innerHTML = `
+        <option value="default">All Sizes</option>
+        <option value="S">Size: Small</option>
+        <option value="M">Size: Medium</option>
+        <option value="L">Size: Large</option>
+        <option value="XL">Size: Extra Large</option>
+        `;
+    }
+
+        else if (filterType === "colour") {
+        filterOption.innerHTML = `
+        <option value="default">All Colours</option>
+        <option value="white">White</option>
+        <option value="black">Black</option>
+        <option value="blue">Blue</option>
+        `;
+    }
+
+    else if (filterType === "availability") {
+        filterOption.innerHTML = `
+        <option value="all">All Products</option>
+        <option value="in">In Stock</option>
+        <option value="out">Out of Stock</option>
+        `;
+    }
+}
+
+    filterProducts();
+}
+
+function filterProducts() {
+    let filterType = document.getElementById("filterType").value;
+    let filterValue = document.getElementById("filterOption").value;
+    let productList = document.getElementById("productList");
+    let products = Array.from(productList.children);
+
+    for (let i = 0; i < products.length; i++) {
+        products[i].style.display = "block";
+    }
+
+    products.sort(function(a, b) {
+        return Number(a.dataset.order) - Number(b.dataset.order);
+    });
+
+    if (filterType === "price") {
+        if (filterValue === "ascending") {
+            products.sort(function(a, b) {
+                return Number(a.dataset.price) - Number(b.dataset.price);
+            });
+        }
+
+        else if (filterValue === "descending") {
+            products.sort(function(a, b) {
+                return Number(b.dataset.price) - Number(a.dataset.price);
+            });
+        }
+    }
+
+    for (let i = 0; i < products.length; i++) {
+        if (filterValue !== "all" && filterType !== "price") {
+            if (filterType === "size" &&
+            products [i].dataset.size !== filterValue) {
+            products [i].style.display = "none";
+            }
+
+        else if (filterType === "colour" &&
+            products[i].dataset.colour !== filterValue) {
+            products[i].style.display = "none";
+            }
+
+        else if (filterType === "availability" &&
+            products[i].dataset.stock !== filterValue) {
+            products[i].style.display = "none";
+            }
+        }
+        
+        productList.appendChild(products[i]);
+    }
+}
+
+function changeQuantity(index, amount) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    if (amount === 1) {
+        cart.push(cart[index]);
+    }
+
+    else if (amount === -1) {
+        cart.splice(index, 1);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    displayCart();
+}
+
+function loadProducts() {
+    let productList = document.getElementById("productList");
+
+    if (productList == null) {
+        return;
+    }
+
+    fetch("/products")
+    .then(response => response.json())
+    .then(products => {
+        productList.innerHTML = "";
+
+        let order = 1;
+
+        for (let i = 0; i < products.length; i++) {
+            let product = products[i];
+
+            if (product.category_name === productList.dataset.category && product.status === "active") {
+                let item = document.createElement("div");
+                item.className = "product";
+                
+                item.dataset.price = product.price;
+                item.dataset.order = order;
+
+                if (product.name === "Classic Shirt") {
+                    item.dataset.size = "M";
+                    item.dataset.colour = "white";
+                    item.dataset.stock = "in";
+                }
+
+                else if (product.name === "Baggy Jeans") {
+                    item.dataset.size = "L";
+                    item.dataset.colour = "blue";
+                    item.dataset.stock = "in";
+                }
+
+                else if (product.name === "Cozy Jumper") {
+                    item.dataset.size = "XL";
+                    item.dataset.colour = "black";
+                    item.dataset.stock = "out";
+                }
+
+                else if (product.name === "Staple Shirt") {
+                    item.dataset.size = "M"
+                    item.dataset.colour = "white";
+                    item.dataset.stock = "in";
+                }
+
+                else if (product.name === "Classic Jeans") {
+                    item.dataset.size = "L";
+                    item.dataset.colour = "blue";
+                    item.dataset.stock = "in";
+                }
+
+                else if (product.name === "Casual Jumper") {
+                    item.dataset.size = "XL";
+                    item.dataset.colour = "black";
+                    item.dataset.stock = "out";
+                }
+
+                let name = document.createElement("h3");
+                name.textContent = product.name;
+
+                let price = document.createElement("p");
+                price.textContent = "$" + Number(product.price).toFixed(2);
+
+                let button = document.createElement("button");
+                button.textContent = "Add to Cart";
+                button.onclick = function() {
+                    addToCart(product.name, Number(product.price));
+                };
+
+                item.appendChild(name);
+                item.appendChild(price);
+                item.appendChild(button);
+
+                let reviewButton = document.createElement("button");
+                reviewButton.textContent = "Reviews";
+
+                let reviewSection = document.createElement("div");
+                reviewSection.style.display = "none";
+
+                reviewButton.onclick = function() {
+                if (reviewSection.style.display === "none") {
+                    reviewSection.style.display = "block";
+                    loadProductReviews(product.product_id, reviewSection);
+                } else {
+                    reviewSection.style.display = "none";
+                }
+            };
+
+                item.appendChild(reviewButton);
+                item.appendChild(reviewSection);
+
+                productList.appendChild(item);
+
+                order++;
+            }
+        }
+    })
+
+    .catch(error => {console.error("Error loading products:", error);});
+}
+
+loadProducts();
+
+
+let registerForm = document.getElementById("registerForm");
+
+if (registerForm != null) {
+    registerForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let customer = {
+            name: document.getElementById("registerName").value,
+            email: document.getElementById("registerEmail").value,
+            password: document.getElementById("registerPassword").value
+        };
+
+        fetch("/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(customer)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+
+            if (data.message === "Account created successfully!") {
+                registerForm.reset();
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Error connecting to server");
+        });
+    });
+}
+
+
+let loginForm = document.getElementById("loginForm");
+
+if (loginForm != null) {
+    loginForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let customer = {
+            email: document.getElementById("loginEmail").value,
+            password: document.getElementById("loginPassword").value
+        };
+
+        fetch("/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(customer)
+        })
+
+        .then(response => response.json().then(data => ({
+            ok: response.ok,
+            message: data.message
+        })))
+
+        .then(result => {
+            alert(result.message);
+
+            if (result.ok) {
+                window.location.href = "homepage.html";
+            }
+        })
+        
+        .catch(error => {
+            console.error(error);
+            alert("Error connecting to server");
+        });
+    });
+}
+
+let loginNavigation = document.getElementById("loginNavigation");
+
+if (loginNavigation != null) {
+    fetch("/check-login")
+    .then(response => response.json())
+    .then(data => {
+        if (data.logged_in){
+            loginNavigation.textContent = "";
+
+            let customerName = document.createElement("span");
+            customerName.textContent = "Hi, " + data.name + " ";
+
+            let logoutButton = document.createElement("button");
+            logoutButton.textContent = "Logout"
+            logoutButton.addEventListener("click", logout);
+
+            loginNavigation.appendChild(customerName);
+            loginNavigation.appendChild(logoutButton);
+        }
+    })
+    .catch(error => console.error(error));   
+}
+
+function logout() {
+    fetch("/logout", {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(data => {alert(data.message);
+        window.location.href = "homepage.html";
+    })
+    .catch(error => console.error(error));
+}
+
+let adminLoginForm = document.getElementById("adminLoginForm");
+
+if (adminLoginForm != null) {
+    adminLoginForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        let admin = {
+            email: document.getElementById("adminEmail").value,
+            password: document.getElementById("adminPassword").value
+        };
+
+        fetch("/admin-login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(admin)
+        })
+
+        .then(response => response.json().then(data => ({
+            ok: response.ok,
+            message: data.message
+        })))
+
+        .then(result => {
+            alert(result.message);
+
+            if (result.ok) {
+                window.location.href = "admin_page.html";
+            }
+        })
+
+        .catch(error => {
+            console.error(error);
+            alert("Error connecting to server");
+        });
+    });
+}
+
+function adminLogout() {
+    fetch("/admin-logout", {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        window.location.href = "admin_login.html";
+    });
+}
+
+let orderHistory = document.getElementById("orderHistory");
+
+if (orderHistory != null) {
+    fetch("/my-orders")
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = "login.html";
+                return null;
+            }
+
+            if (!response.ok) {
+                throw new Error("Could not load orders");
+            }
+
+            return response.json();
+        })
+
+        .then(orders => {
+            if (orders == null) {
+                return;
+            }
+
+            orderHistory.textContent = "";
+
+            if (orders.length === 0) {
+                orderHistory.textContent = "You haven't placed any orders yet.";
+                return;
+            }
+
+            orders.forEach(order => {
+                let section = document.createElement("div");
+
+                let heading = document.createElement("h2");
+                heading.textContent = "Order #" + order.order_id;
+                section.appendChild(heading);
+
+                let date = document.createElement("p");
+                date.textContent = "Date: " + order.date;
+                section.appendChild(date);
+
+                let status = document.createElement("p");
+                status.textContent = "Status: " + order.status;
+                section.appendChild(status);
+
+                let itemsHeading = document.createElement("h3");
+                itemsHeading.textContent = "Products:";
+                section.appendChild(itemsHeading);
+
+                order.items.forEach(item => {
+                    let product = document.createElement("p");
+                    product.textContent =
+                        item.name + " x " + item.quantity +
+                        " - $" + Number(item.subtotal).toFixed(2);
+
+                    section.appendChild(product);
+                });
+
+                let total = document.createElement("p");
+                total.textContent =
+                    "Total: $" + Number(order.total).toFixed(2);
+
+                section.appendChild(total);
+
+                section.appendChild(document.createElement("hr"));
+                orderHistory.appendChild(section);
+            });
+        })
+
+        .catch(error => {
+            console.error(error);
+            orderHistory.textContent = "Could not load your orders.";
+        });
+}
+
+function showManageOrders() {
+    hideAdminSections();
+    document.getElementById("manageCustomersSection").style.display = "none";
+
+    let sections = [
+        "addProductSection",
+        "removeProductSection",
+        "editProductSection"
+    ];
+
+    sections.forEach(id => {
+        let section = document.getElementById(id);
+
+        if (section != null) {
+            section.style.display = "none";
+        }
+    });
+
+    document.getElementById("manageOrdersSection").style.display = "block";
+
+    loadAdminOrders();
+}
+
+function loadAdminOrders() {
+    let adminOrders = document.getElementById("adminOrders");
+
+    adminOrders.textContent = "Loading orders...";
+
+    fetch("/admin-orders")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Could not load orders");
+            }
+
+            return response.json();
+        })
+
+        .then(orders => {
+            adminOrders.textContent = "";
+
+            if (orders.length === 0) {
+                adminOrders.textContent = "No customer orders yet.";
+                return;
+            }
+
+            orders.forEach(order => {
+                let section = document.createElement("div");
+
+                let heading = document.createElement("h3");
+                heading.textContent = "Order #" + order.order_id;
+                section.appendChild(heading);
+
+                let customer = document.createElement("p");
+                customer.textContent = "Customer: " + order.customer_name;
+                section.appendChild(customer);
+
+                let date = document.createElement("p");
+                date.textContent = "Date: " + order.order_date;
+                section.appendChild(date);
+
+                let total = document.createElement("p");
+                total.textContent = "Total: $" + Number(order.total_amount).toFixed(2);
+                section.appendChild(total);
+
+                let delivery = document.createElement("p");
+                delivery.textContent = "Method: " + order.shipping_method;
+                section.appendChild(delivery);
+
+                let statusLabel = document.createElement("label");
+                statusLabel.textContent = "Order Status: ";
+                section.appendChild(statusLabel);
+
+                let statusSelect = document.createElement("select");
+
+                let statuses;
+
+                if (order.shipping_method === "pickup") {
+                    statuses = ["Pending", "Processing", "Ready for Pickup", "Collected", "Cancelled"];
+                } else {
+                    statuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+                }
+
+                statuses.forEach(status => {
+                    let option = document.createElement("option");
+                    option.value = status;
+                    option.textContent = status;
+                    statusSelect.appendChild(option);
+                });
+
+                statusSelect.value = order.status;
+                section.appendChild(statusSelect);
+
+                let updateButton = document.createElement("button");
+                updateButton.textContent = "Update Status";
+
+                updateButton.addEventListener("click", function() {
+                    updateOrderStatus(order.order_id, statusSelect.value);
+                });
+
+                section.appendChild(updateButton);
+                section.appendChild(document.createElement("hr"));
+
+                adminOrders.appendChild(section);
+            });
+        })
+
+        .catch(error => {
+            console.error(error);
+            adminOrders.textContent = "Could not load customer orders.";
+        });
+}
+
+function updateOrderStatus(orderId, status) {
+    fetch("/update-order-status", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            order_id: orderId,
+            status: status
+        })
+    })
+
+    .then(response => response.json().then(data => ({
+        ok: response.ok,
+        message: data.message
+    })))
+
+    .then(result => {
+        alert(result.message);
+
+        if (result.ok) {
+            loadAdminOrders();
+        }
+    })
+
+    .catch(error => {
+        console.error(error);
+        alert("Could not update order status.");
+    });
+}
+
+function showManageCustomers() {
+    hideAdminSections();
+
+    document.getElementById("manageCustomersSection").style.display = "block";
+
+    loadAdminCustomers();
+}
+
+
+function loadAdminCustomers() {
+    let customerList = document.getElementById("adminCustomers");
+
+    customerList.textContent = "Loading customers...";
+
+    fetch("/admin-customers")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Could not load customers");
+            }
+
+            return response.json();
+        })
+        .then(customers => {
+            customerList.textContent = "";
+
+            if (customers.length === 0) {
+                customerList.textContent = "No registered customers yet.";
+                return;
+            }
+
+            customers.forEach(customer => {
+                let section = document.createElement("div");
+
+                let heading = document.createElement("h3");
+                heading.textContent = customer.name;
+                section.appendChild(heading);
+
+                let id = document.createElement("p");
+                id.textContent = "Customer ID: " + customer.user_id;
+                section.appendChild(id);
+
+                let email = document.createElement("p");
+                email.textContent = "Email: " + customer.email;
+                section.appendChild(email);
+
+                let phone = document.createElement("p");
+                phone.textContent = "Phone: " + (customer.phone || "Not provided");
+                section.appendChild(phone);
+
+                section.appendChild(document.createElement("hr"));
+
+                customerList.appendChild(section);
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            customerList.textContent = "Could not load customer information.";
+        });
+}
+
+function hideAdminSections() {
+    let sections = [
+        "addProductSection",
+        "removeProductSection",
+        "editProductSection",
+        "manageOrdersSection",
+        "manageCustomersSection",
+        "ordersSection",
+        "manageDiscountsSection"
+    ];
+
+    sections.forEach(id => {
+        let section = document.getElementById(id);
+
+        if (section != null) {
+            section.style.display = "none";
+        }
+    });
+}
+
+function showManageDiscounts() {
+    hideAdminSections();
+
+    document.getElementById("manageDiscountsSection").style.display = "block";
+
+    loadAdminDiscounts();
+}
+
+function loadAdminDiscounts() {
+    fetch("/admin-discounts")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Could not load discounts");
+            }
+
+            return response.json();
+        })
+        .then(discounts => {
+            let container = document.getElementById("adminDiscounts");
+            container.textContent = "";
+
+            for (let code in discounts) {
+                let discount = discounts[code];
+
+                let item = document.createElement("div");
+
+                let description = document.createElement("p");
+                description.textContent =
+                    code + " - " +
+                    discount.percentage + "% off - " +
+                    (discount.active ? "Active" : "Inactive");
+
+                let toggleButton = document.createElement("button");
+                toggleButton.textContent = discount.active ? "Disable" : "Enable";
+                toggleButton.onclick = function() {
+                    toggleDiscount(code);
+                };
+
+                let removeButton = document.createElement("button");
+                removeButton.textContent = "Remove";
+                removeButton.onclick = function() {
+                    removeDiscount(code);
+                };
+
+                item.appendChild(description);
+                item.appendChild(toggleButton);
+                item.appendChild(removeButton);
+                item.appendChild(document.createElement("hr"));
+
+                container.appendChild(item);
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            document.getElementById("adminDiscounts").textContent =
+                "Could not load discounts.";
+        });
+}
+
+document.getElementById("addDiscountForm")?.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    let code = document.getElementById("discountCode").value;
+    let percentage = document.getElementById("discountPercentage").value;
+
+    fetch("/add-discount", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            code: code,
+            percentage: percentage
+        })
+    })
+
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+
+        loadAdminDiscounts();
+    })
+
+    .catch(error => console.error(error));
+});
+
+function toggleDiscount(code) {
+    fetch("/toggle-discount", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadAdminDiscounts();
+    })
+    .catch(error => console.error(error));
+}
+
+
+function removeDiscount(code) {
+    if (!confirm("Are you sure you want to remove " + code + "?")) {
+        return;
+    }
+
+    fetch("/remove-discount", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        loadAdminDiscounts();
+    })
+    .catch(error => console.error(error));
+}
+
+function loadProductReviews(productId, container) {
+    container.textContent = "Loading reviews...";
+
+    fetch("/product-reviews/" + productId)
+    .then(response => response.json())
+    .then(reviews => {
+        container.textContent = "";
+
+        let heading = document.createElement("h4");
+        heading.textContent = "Customer Reviews";
+        container.appendChild(heading);
+
+        if (reviews.length === 0) {
+            let message = document.createElement("p");
+            message.textContent = "No reviews yet.";
+            container.appendChild(message);
+        }
+
+        reviews.forEach(review => {
+            let item = document.createElement("p");
+            item.textContent =
+                "★".repeat(review.rating) +
+                " - " + review.comment +
+                " (" + review.created_at + ")";
+
+            container.appendChild(item);
+        });
+
+        let form = document.createElement("form");
+
+        let rating = document.createElement("select");
+
+        for (let i = 1; i <= 5; i++) {
+            let option = document.createElement("option");
+            option.value = i;
+            option.textContent = i + " Star" + (i > 1 ? "s" : "");
+            rating.appendChild(option);
+        }
+
+        rating.value = "5";
+
+        let comment = document.createElement("textarea");
+        comment.placeholder = "Write your review...";
+        comment.maxLength = 500;
+        comment.required = true;
+
+        let submitButton = document.createElement("button");
+        submitButton.type = "submit";
+        submitButton.textContent = "Submit Review";
+
+        form.appendChild(rating);
+        form.appendChild(comment);
+        form.appendChild(submitButton);
+
+        form.onsubmit = function(event) {
+            event.preventDefault();
+            submitProductReview(productId, rating.value, comment.value, container);
+        };
+
+        container.appendChild(form);
+    })
+    .catch(error => {
+        console.error(error);
+        container.textContent = "Could not load reviews.";
+    });
+}
+
+function submitProductReview(productId, rating, comment, container) {
+    fetch("/submit-review", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            rating: Number(rating),
+            comment: comment
+        })
+    })
+    .then(async response => {
+        let data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Could not submit review");
+        }
+
+        return data;
+    })
+    .then(data => {
+        alert(data.message);
+        loadProductReviews(productId, container);
+    })
+    .catch(error => {
+        alert(error.message);
+    });
+}
