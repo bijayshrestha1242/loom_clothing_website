@@ -46,7 +46,6 @@ git clone https://github.com/bijayshrestha1242/loom_clothing_website.git
 cd loom_clothing_website
 ```
 
-Skip this step if the project is already on your computer.
 
 The default working branch is `loom-updated`.
 
@@ -62,14 +61,6 @@ python -m pip install flask
 python app.py
 ```
 
-On Windows, if the `python` command is unavailable, try:
-
-```powershell
-py -m pip install flask
-py app.py
-```
-
-Alternatively, use the full path to your Python executable.
 
 ### 4. Open the website
 
@@ -131,7 +122,6 @@ An existing admin account is required. Contact the project team for access. Do n
 7. Check the confirmation page and My Orders.
 8. Log in as an admin and check the order.
 
-These are suggested manual checks, not a record of completed tests.
 
 ## Limitations
 
