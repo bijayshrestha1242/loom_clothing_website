@@ -552,7 +552,7 @@ function loadProducts() {
 
             if (product.category_name === productList.dataset.category && product.status === "active") {
                 let item = document.createElement("div");
-                item.className = "product";
+                item.className = "product-card";
                 
                 item.dataset.price = product.price;
                 item.dataset.order = order;
@@ -605,7 +605,16 @@ function loadProducts() {
                     addToCart(product.name, Number(product.price));
                 };
 
+                let image = document.createElement("img");
+                image.src = product.image_url;
+                image.alt = product.name;
+
+                let description = document.createElement("p");
+                description.textContent = product.description || "";
+
+                item.appendChild(image);
                 item.appendChild(name);
+                item.appendChild(description);
                 item.appendChild(price);
                 item.appendChild(button);
 
