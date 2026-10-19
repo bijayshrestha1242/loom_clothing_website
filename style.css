@@ -529,3 +529,122 @@ footer {
 #orderHistory hr {
     display: none;
 }
+/* MEN'S AND WOMEN'S PAGES */
+.catalog-page main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.catalog-page main > section {
+    margin-bottom: 30px;
+}
+
+/* Navigation */
+.catalog-page nav {
+    max-width: 1160px;
+    margin: 0 auto;
+    gap: 20px;
+}
+
+.catalog-page nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.catalog-page nav > h1,
+.catalog-page .logo {
+    font-size: 22px;
+}
+
+.catalog-page nav ul {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    list-style: none;
+}
+
+/* Product grid: supports either existing class name */
+.catalog-page #productList {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 25px;
+    padding: 0;
+}
+
+/* Product cards */
+.catalog-page #productList > div {
+    min-width: 0;
+    padding: 18px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.catalog-page #productList img {
+    display: block;
+    width: 100%;
+    height: 280px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.catalog-page #productList h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.catalog-page #productList p {
+    margin-bottom: 12px;
+}
+
+/* Filters and buttons */
+.catalog-page select {
+    max-width: 100%;
+    padding: 8px 12px;
+    margin: 8px 5px 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.catalog-page main button {
+    padding: 10px 15px;
+    margin: 5px;
+    background: #222;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.catalog-page main button:hover {
+    background: #444;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    .catalog-page #productList {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .catalog-page nav {
+        flex-direction: column;
+    }
+
+    .catalog-page nav ul {
+        flex-direction: row;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .catalog-page #productList {
+        grid-template-columns: 1fr;
+    }
+}
