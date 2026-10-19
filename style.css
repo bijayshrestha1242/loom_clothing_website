@@ -470,3 +470,62 @@ footer {
         margin: 30px 15px;
     }
 }
+/* ORDER HISTORY */
+.order-history-page nav {
+    background: #222;
+    padding: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.order-history-page nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.order-history-page nav a:hover {
+    text-decoration: underline;
+}
+
+.order-history-page > h1 {
+    max-width: 800px;
+    margin: 30px auto 20px;
+    padding: 0 20px;
+}
+
+#orderHistory {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+}
+
+#orderHistory > div {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+#orderHistory h2 {
+    margin-bottom: 10px;
+}
+
+#orderHistory h3 {
+    margin: 15px 0 10px;
+}
+
+#orderHistory p {
+    margin-bottom: 8px;
+}
+
+#orderHistory > div > p:last-of-type {
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#orderHistory hr {
+    display: none;
+}
