@@ -290,30 +290,38 @@ def save_order():
             })
 
             subtotal = round(subtotal, 2)
-
-            discounts = load_discounts()
-            discount_code = discount_code.upper()
-
             discount_percentage = 0
 
             if discount_code:
-                if discount_code not in discounts or not discounts[discount_code]["active"]:
-                    return jsonify({"message": "Invalid or inactive discount code"}), 400
+                discounts = load_discounts()
+                discount_code = discount_code.upper()
 
-            discount_percentage = discounts[discount_code]["percentage"]
+                if (
+                    discount_code not in discounts
+                    or not discounts[discount_code]["active"]
+                ):
+                    return jsonify({
+                        "message": "Invalid or inactive discount code"
+                    }), 400
+
+                discount_percentage = discounts[discount_code]["percentage"]
 
             discount_amount = round(subtotal * discount_percentage / 100, 2)
             total = round(subtotal - discount_amount, 2)
-            
+
             cursor = connection.execute("""
-            INSERT INTO orders (user_id, order_date, status, subtotal, shipping_cost, total_amount)VALUES (?, ?, ?, ?, ?, ?)""", (
-            session["user_id"],
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Pending",
-            subtotal,
-            0,
-            total
-        ))
+                INSERT INTO orders
+                (user_id, order_date, status, subtotal, shipping_cost, total_amount)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                session["user_id"],
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "Pending",
+                subtotal,
+                0,
+                total
+            ))
+
 
         order_id = cursor.lastrowid
 
@@ -350,6 +358,7 @@ def save_order():
 
     except (sqlite3.Error, KeyError, TypeError, ValueError):
         connection.rollback()
+        app.logger.exception("Order saving failed")
         return jsonify({"message": "Could not save the order"}), 400
 
     finally:

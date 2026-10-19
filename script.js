@@ -22,52 +22,96 @@ function displayCart() {
     let cartItems = document.getElementById("cartItems");
     let cartTotal = document.getElementById("cartTotal");
 
-    if (cartItems == null || cartTotal == null) {
-        return;
-    }
+    if (!cartItems || !cartTotal) return;
 
     cartItems.innerHTML = "";
 
+    let groups = [];
     let total = 0;
 
-    for (let i = 0; i < cart.length; i++) {
-        let item = document.createElement("li");
-        let price = Number(cart[i].price);
+    cart.forEach(product => {
+        let price = Number(product.price);
+        total += price;
 
-        item.textContent = cart[i].name + " - $" + price.toFixed(2) + " ";
+        let group = groups.find(item =>
+            item.name === product.name && item.price === price
+        );
 
-        let minusButton = document.createElement("button");
-        minusButton.textContent = "-";
-        minusButton.onclick = function() {
-            changeQuantity(i, -1);
+        if (group) {
+            group.quantity++;
+        } else {
+            groups.push({
+                name: product.name,
+                price: price,
+                quantity: 1
+            });
+        }
+    });
+
+    groups.forEach(product => {
+        let row = document.createElement("li");
+
+        let details = document.createElement("span");
+        details.textContent =
+            product.name + " — $" +
+            (product.price * product.quantity).toFixed(2);
+
+        let controls = document.createElement("div");
+        controls.className = "cart-controls";
+
+        function findIndex() {
+            return cart.findIndex(item =>
+                item.name === product.name &&
+                Number(item.price) === product.price
+            );
+        }
+
+        let minus = document.createElement("button");
+        minus.type = "button";
+        minus.textContent = "−";
+        minus.setAttribute("aria-label", "Decrease " + product.name);
+        minus.onclick = () => changeQuantity(findIndex(), -1);
+
+        let quantity = document.createElement("span");
+        quantity.className = "cart-quantity";
+        quantity.textContent = product.quantity;
+
+        let plus = document.createElement("button");
+        plus.type = "button";
+        plus.textContent = "+";
+        plus.setAttribute("aria-label", "Increase " + product.name);
+        plus.onclick = () => changeQuantity(findIndex(), 1);
+
+        let remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "cart-remove";
+        remove.textContent = "Remove";
+        remove.onclick = () => {
+            cart = cart.filter(item =>
+                !(item.name === product.name &&
+                  Number(item.price) === product.price)
+            );
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            displayCart();
         };
 
-        let plusButton = document.createElement("button");
-        plusButton.textContent = "+";
-        plusButton.onclick = function() {
-            changeQuantity(i, 1);
-        };
-        
-        let removeButton = document.createElement("button");
-        removeButton.textContent = "Remove";
-        removeButton.onclick = function() {
-            removeFromCart(i);
-        };
+        controls.append(minus, quantity, plus, remove);
+        row.append(details, controls);
+        cartItems.appendChild(row);
+    });
 
-        item.appendChild(minusButton);
-        item.appendChild(plusButton);
-        item.appendChild(removeButton);
-
-        cartItems.appendChild(item);
-
-        total = total + price;
+    if (cart.length === 0) {
+        cartItems.textContent = "Your cart is empty.";
     }
 
-    let discountAmount = total * discount;
-    finalTotal = total - discountAmount;
-
-    cartTotal.textContent = "Total: $" + finalTotal.toFixed(2);
+    finalTotal = total - total * discount;
+    cartTotal.textContent =
+        "Items: " + cart.length +
+        " | Total: $" + finalTotal.toFixed(2);
 }
+
+
 
 function removeFromCart(index) {
     cart.splice(index, 1);
